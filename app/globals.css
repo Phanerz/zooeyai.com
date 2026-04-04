@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(74, 222, 128, 0.08), transparent 24%),
+    radial-gradient(circle at 85% 12%, rgba(111, 120, 255, 0.12), transparent 16%),
+    linear-gradient(180deg, #050608 0%, #040507 100%);
+}
+
+::selection {
+  background: rgba(74, 222, 128, 0.32);
+  color: #effef1;
+}
+
+.shell {
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8;
+}
+
+.panel-surface {
+  @apply rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-xl;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.pixel-border {
+  box-shadow:
+    2px 0 0 #4ade80,
+    -2px 0 0 #4ade80,
+    0 2px 0 #4ade80,
+    0 -2px 0 #4ade80;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.bg-grid-fade {
+  background-image:
+    linear-gradient(rgba(74, 222, 128, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 222, 128, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+}
+
+@keyframes node-hover-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
