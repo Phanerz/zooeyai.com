@@ -63,14 +63,7 @@ const zooeyFeatures = [
 
 export function OrbitalFeatures() {
   return (
-    <section id="features" className="relative w-full">
-      <div className="text-center pt-16 pb-4">
-        <p className="text-xs uppercase tracking-[0.35em] text-green-300/70">Core Features</p>
-        <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          Five reasons Zooey feels better<br />in practice than it sounds on paper
-        </h2>
-        <p className="mt-4 text-white/50 text-sm">Click any node to explore</p>
-      </div>
+    <section id="features" className="relative w-full -mt-10">
       <RadialOrbitalTimeline timelineData={zooeyFeatures} />
     </section>
   );

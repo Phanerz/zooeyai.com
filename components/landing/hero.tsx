@@ -64,9 +64,9 @@ export function Hero() {
         mediaType="image"
         mediaSrc="/zooey-demo.svg"
         bgImageSrc="/zooey-backdrop.svg"
-        titleLines={['Zooey lives', 'on your screen']}
-        description="Write, fix, solve, instantly, without opening anything"
-        scrollToExpand="Scroll to see the flow"
+        titleLines={['Your AI assistant,', 'always on screen.']}
+        description="Press a key. Zooey helps you write, fix, and solve, without leaving the window you are in."
+        scrollToExpand="Scroll to see Zooey in action"
         mediaOverlay={<DemoOverlay />}
         presenceSrc="/zooey-icon.png"
       >

@@ -47,13 +47,13 @@ const ScrollExpandMedia = ({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showContent, setShowContent] = useState(false);
   const [mediaFullyExpanded, setMediaFullyExpanded] = useState(false);
-  const [touchStartY, setTouchStartY] = useState(0);
   const [isMobileState, setIsMobileState] = useState(false);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const progressRef = useRef(0);
   const targetProgressRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
+  const touchStartYRef = useRef(0);
 
   const clampProgress = (value: number) =>
     Math.min(Math.max(value, 0), maxVirtualProgress);
@@ -120,21 +120,21 @@ const ScrollExpandMedia = ({
     };
 
     const handleTouchStart = (e: TouchEvent) => {
-      setTouchStartY(e.touches[0].clientY);
+      touchStartYRef.current = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!touchStartY) return;
+      if (!touchStartYRef.current) return;
 
       const touchY = e.touches[0].clientY;
-      const deltaY = touchStartY - touchY;
+      const deltaY = touchStartYRef.current - touchY;
 
       if (!contentUnlocked()) {
         e.preventDefault();
         const scrollFactor =
           deltaY < 0 ? touchForwardSensitivity : touchBackSensitivity;
         setTargetProgress(targetProgressRef.current + deltaY * scrollFactor);
-        setTouchStartY(touchY);
+        touchStartYRef.current = touchY;
       } else if (deltaY < -20 && window.scrollY <= 5) {
         e.preventDefault();
         setTargetProgress(
@@ -144,7 +144,7 @@ const ScrollExpandMedia = ({
     };
 
     const handleTouchEnd = () => {
-      setTouchStartY(0);
+      touchStartYRef.current = 0;
     };
 
     const handleScroll = () => {
@@ -185,7 +185,7 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener('touchend', handleTouchEnd as EventListener);
     };
-  }, [touchStartY]);
+  }, []);
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -334,7 +334,7 @@ const ScrollExpandMedia = ({
                 ) : null}
                 {description ? (
                   <motion.p
-                    className="max-w-2xl rounded-full border border-white/10 bg-black/35 px-5 py-2 text-balance text-base text-white/90 backdrop-blur-md shadow-[0_12px_32px_rgba(0,0,0,0.45)] sm:text-lg"
+                    className="w-fit cursor-default rounded-full border border-white/10 bg-black/30 px-6 py-2.5 text-sm text-white/85 backdrop-blur-[4px] shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-colors duration-200 hover:border-green-400/25 hover:bg-black/45 sm:text-base"
                     style={{
                       transform: `translate3d(-${titleOffset}vw, 0, 0)`,
                       willChange: 'transform',
