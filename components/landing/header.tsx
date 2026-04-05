@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 import { Menu, X } from "lucide-react";
 import { StarButton } from "@/components/ui/star-button";
 import { cn } from "@/lib/utils";
@@ -170,7 +172,7 @@ export function Header() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.2, ease: EASE }}
               className="mt-2 overflow-hidden rounded-[24px] border border-white/[0.07] bg-[rgba(5,6,8,0.72)] p-4 backdrop-blur-2xl"
             >
               <nav className="flex flex-col gap-1">

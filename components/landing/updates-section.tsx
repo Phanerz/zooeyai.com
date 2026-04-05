@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 import { Copy, ExternalLink, Maximize2, X, CheckCheck, GitMerge, Rss } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { StarButton } from "@/components/ui/star-button";
@@ -152,7 +154,7 @@ function ReleaseDialog({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.3, ease: EASE }}
         style={{
           boxShadow:
             "0 0 0 1px rgba(74,222,128,0.15), 0 40px 120px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)",
@@ -243,7 +245,7 @@ export function UpdatesSection() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.65, ease: EASE }}
           className="mb-20 flex flex-col gap-4"
         >
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-green-300/80">
@@ -276,7 +278,7 @@ export function UpdatesSection() {
                 id={release.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: idx * 0.1, duration: 0.6, ease: EASE }}
                 className="relative flex flex-col gap-6 py-12 md:flex-row md:gap-12 md:pl-14"
               >
                 {/* Timeline dot */}

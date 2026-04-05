@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 import { Plus, Send, MessageCircleQuestion, CheckCircle2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { StarButton } from "@/components/ui/star-button";
@@ -79,7 +81,7 @@ function AskForm({ onClose }: { onClose: () => void }) {
       initial={{ opacity: 0, y: -12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.28, ease: EASE }}
       className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[rgba(7,11,7,0.72)] p-5 backdrop-blur-2xl"
       style={{
         boxShadow:
@@ -161,7 +163,7 @@ export function FaqSection() {
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.65, ease: EASE }}
           className="mb-16 flex flex-col gap-8 md:flex-row md:items-end md:justify-between"
         >
           {/* Left — headline */}
@@ -221,7 +223,7 @@ export function FaqSection() {
                 key={faq.question}
                 initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: i * 0.08, duration: 0.55, ease: EASE }}
                 onMouseMove={setGlow}
                 onMouseLeave={clearGlow}
                 className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[rgba(7,11,7,0.48)] backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5"
@@ -296,7 +298,7 @@ export function FaqSection() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 0.38, ease: EASE }}
                           className="overflow-hidden"
                         >
                           <p className="pb-1 pr-4 text-sm leading-relaxed text-white/62">

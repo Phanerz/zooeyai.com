@@ -40,12 +40,14 @@ const steps = [
   },
 ];
 
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
 const cardVariants = {
   hidden: { opacity: 0, y: 36 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    transition: { delay: i * 0.15, duration: 0.6, ease: EASE },
   }),
 };
 
@@ -54,7 +56,7 @@ const headerVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.6, ease: EASE },
   },
 };
 
@@ -172,7 +174,7 @@ export function HowItWorks() {
                 transition={{
                   delay: i * 0.15 + 0.1,
                   duration: 0.45,
-                  ease: [0.22, 1, 0.36, 1],
+                  ease: EASE,
                 }}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full border border-green-400/40 bg-green-400/10 text-sm font-bold text-green-300 ring-4 ring-[#050608]">
