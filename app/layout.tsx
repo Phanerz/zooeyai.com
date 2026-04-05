@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import Image from "next/image";
+import { Analytics } from "@vercel/analytics/next";
 import { PlasmaWeb } from "@/components/ui/cosmic-plasma-web";
 import { Header } from "@/components/landing/header";
 import { ConditionalFooter } from "@/components/landing/conditional-footer";
@@ -68,6 +69,7 @@ export default function RootLayout({
             className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)]"
           />
         </div>
+        <Analytics />
       </body>
     </html>
   );
