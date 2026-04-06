@@ -17,50 +17,50 @@ const features = [
   {
     id: 'instant',
     title: 'Instant Actions',
-    eyebrow: 'Press a key. It is done.',
-    blurb: 'No prompt choreography. No setup ritual. Zooey executes the moment you call it.',
+    eyebrow: 'One key. Done.',
+    blurb: 'No writing prompts. No hunting through menus. You press a hotkey, Zooey shows up and handles it.',
     detail:
-      'The win is speed you can feel. One hotkey, one mode, one result, and you are already back in what you were doing.',
+      'The whole point is that you never break stride. One shortcut, one result — and before the thought fades, Zooey has already acted on it.',
     icon: Zap,
     orbitClass: 'left-1/2 top-0 -translate-x-1/2'
   },
   {
     id: 'tabs',
-    title: 'No Tabs Needed',
-    eyebrow: 'Stay in your flow.',
-    blurb: 'You do not get pulled into another window just to finish a tiny task.',
+    title: 'No Switching Tabs',
+    eyebrow: 'Stay exactly where you are.',
+    blurb: 'You call Zooey from whatever app you\'re in. Zooey answers right there — no new window, no context switch, no losing your place.',
     detail:
-      'Zooey works where you already are, so the task ends without the usual detour through tabs, sidebars, or context switching.',
+      'Every time you stop to open a new tab, your train of thought derails a little. Zooey removes that entirely. Ask, get the answer, keep going.',
     icon: AppWindow,
     orbitClass: 'right-[6%] top-1/2 -translate-y-1/2'
   },
   {
     id: 'always',
     title: 'Always There',
-    eyebrow: 'Ready the moment you need it.',
-    blurb: 'Zooey lives on your screen like a companion, not a destination.',
+    eyebrow: 'On your screen whenever you need a hand.',
+    blurb: 'Zooey sits quietly on top of every window you open, waiting. No app to launch, no tab to find — Zooey is just there.',
     detail:
-      'It stays close, quiet, and available. You do not go looking for it. You just use it when the next thought shows up.',
+      'Most tools make you go to them. Zooey comes to you. Whenever a question pops up or a task needs doing, Zooey is already within reach.',
     icon: Orbit,
     orbitClass: 'left-1/2 bottom-0 -translate-x-1/2'
   },
   {
     id: 'private',
-    title: 'Fast. Private. Yours.',
-    eyebrow: ‘Instant answers. Zero compromises.’,
-    blurb: ‘Zooey responds in a flash and never shares your conversations. What happens on your screen stays on your screen.’,
+    title: 'Fast & Private',
+    eyebrow: 'Quick answers. Your business stays yours.',
+    blurb: 'Zooey responds in a flash and never shares your conversations. What happens on your screen stays on your screen.',
     detail:
-      ‘No waiting, no data leaks, no second-guessing. Zooey is fast enough to keep up with your thinking and private enough to trust with anything.’,
+      'No awkward lag, no wondering what gets stored. Zooey is fast enough to keep up with your thinking and discreet enough to trust with anything.',
     icon: LockKeyhole,
     orbitClass: 'left-[6%] top-1/2 -translate-y-1/2'
   },
   {
     id: 'modes',
-    title: 'Clear Modes',
-    eyebrow: 'No guessing, no messy prompts.',
-    blurb: 'Each mode has a job, so you know what will happen before you press enter.',
+    title: 'Six Clear Modes',
+    eyebrow: 'Tell Zooey what kind of help you need.',
+    blurb: 'Write, Research, Code, Maths, Email, Grammar — each mode is tuned for one job, so Zooey knows exactly how to show up for you.',
     detail:
-      'Write means write. Fix means fix. Solve means solve. The product stays predictable, which makes it far easier to rely on all day.',
+      'When you pick a mode, Zooey already knows the shape of the task. No fussing with prompts or rephrasing to get the right output. Just pick and go.',
     icon: Command,
     orbitClass: 'left-[18%] top-[12%]'
   }
@@ -88,10 +88,10 @@ export function Features() {
             Core features
           </p>
           <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-            Five reasons Zooey feels better in practice than it sounds on paper
+            Five reasons Zooey feels better in practice than on paper
           </h2>
           <p className="mt-5 text-balance text-lg leading-8 text-white/66">
-            The magic is not a giant interface. It is how little Zooey asks from you before it gets useful.
+            The magic isn&apos;t a giant interface. Zooey asks almost nothing from you — and gets useful the second you call.
           </p>
         </div>
 
