@@ -26,53 +26,77 @@ export function ZooeyChatbot() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center md:bottom-0 md:right-16">
-      {/* Speech bubble */}
+    /* Anchor point — icon always stays here, bubble grows upward absolutely */
+    <div className="fixed bottom-6 right-6 z-50 md:bottom-2 md:right-16">
+      {/* Speech bubble — absolutely above the icon, never shifts layout */}
       <AnimatePresence mode="wait">
         {index !== null && (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="relative mb-2 max-w-[220px] rounded-2xl px-4 py-2.5 text-center text-sm font-medium text-white md:max-w-[260px]"
-            style={{
-              background: "rgba(10, 16, 10, 0.88)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(74,222,128,0.18)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 16px rgba(74,222,128,0.06)",
-            }}
+            exit={{ opacity: 0, y: 6, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 420, damping: 28 }}
+            className="absolute bottom-[calc(100%-4px)] right-0 w-[230px] md:w-[260px]"
           >
-            {LINES[index]}
-            {/* Arrow pointing down */}
-            <span
-              className="absolute -bottom-[9px] left-1/2 -translate-x-1/2"
+            {/* Chat bubble body */}
+            <div
+              className="relative rounded-2xl rounded-br-sm px-4 py-3"
               style={{
-                width: 0,
-                height: 0,
-                borderLeft: "9px solid transparent",
-                borderRight: "9px solid transparent",
-                borderTop: "9px solid rgba(10,16,10,0.88)",
-                display: "block",
+                background: "rgba(12, 20, 12, 0.95)",
+                border: "1px solid rgba(74,222,128,0.25)",
+                boxShadow:
+                  "0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(74,222,128,0.08), 0 0 24px rgba(74,222,128,0.07)",
+                backdropFilter: "blur(16px)",
               }}
-            />
+            >
+              {/* Sender label */}
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-green-400/60">
+                Zooey
+              </p>
+              {/* Message text */}
+              <p className="text-sm font-medium leading-snug text-white">
+                {LINES[index]}
+              </p>
+
+              {/* Tail — bottom-right corner pointing at Zooey */}
+              <svg
+                className="absolute -bottom-[10px] right-3"
+                width="16"
+                height="10"
+                viewBox="0 0 16 10"
+                fill="none"
+              >
+                <path
+                  d="M0 0 L16 0 L8 10 Z"
+                  fill="rgba(12,20,12,0.95)"
+                />
+                <path
+                  d="M0.5 0.5 L15.5 0.5 L8 9.2 Z"
+                  stroke="rgba(74,222,128,0.25)"
+                  strokeWidth="0.8"
+                  fill="none"
+                />
+              </svg>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Zooey icon */}
+      {/* Zooey icon — position never changes */}
       <button
         onClick={handleClick}
-        className="w-20 cursor-pointer transition-transform hover:scale-105 active:scale-95 md:w-32"
+        className="relative w-20 cursor-pointer md:w-32"
         aria-label="Chat with Zooey"
+        style={{ display: "block" }}
       >
         <Image
           src="/zooey-icon.png"
           alt="Zooey"
           width={144}
           height={144}
-          className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)]"
+          priority
+          className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)] transition-transform duration-150 hover:scale-105 active:scale-95"
         />
       </button>
     </div>
