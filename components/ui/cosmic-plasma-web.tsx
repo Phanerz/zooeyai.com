@@ -252,22 +252,28 @@ export function PlasmaWeb({
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
 
-    // Skip WebGL on iOS and touch-only devices.
-    // iOS Safari has strict GPU memory limits — complex shaders cause hard crashes.
-    // The CSS gradient fallback in the JSX remains visible instead.
+    // Detect iOS for performance tuning — WebGL still runs on all devices
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    if (isIOS || isTouchOnly) return;
 
-    // Guard against browsers where WebGL is unavailable or blocked
+    // Guard against browsers where WebGL is unavailable
     let renderer: InstanceType<typeof Renderer>;
     try {
-      renderer = new Renderer({ alpha: transparent, premultipliedAlpha: false });
+      renderer = new Renderer({
+        alpha: transparent,
+        premultipliedAlpha: false,
+        // Low-power pipeline on iOS reduces heat and GPU memory pressure
+        powerPreference: (isIOS ? 'low-power' : 'high-performance') as WebGLPowerPreference,
+      });
     } catch {
       return; // CSS gradient fallback remains visible
     }
+
+    // Cap DPR to 1 on iOS — a 3× DPR iPhone shades 9× more fragments per frame,
+    // exhausting Safari's ~256 MB GPU budget and crashing the tab. Visually near-identical.
+    renderer.dpr = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
+
     const gl = renderer.gl;
 
     if (transparent) {
@@ -282,6 +288,8 @@ export function PlasmaWeb({
 
     function resize() {
       renderer.setSize(ctn.offsetWidth, ctn.offsetHeight);
+      // Re-apply DPR cap after each resize — Safari resets it on orientation change
+      renderer.dpr = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
       if (program) {
         program.uniforms.uResolution.value = new Color(
           gl.canvas.width,
@@ -302,20 +310,21 @@ export function PlasmaWeb({
         uResolution:        { value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height) },
         uFocal:             { value: new Float32Array(focal) },
         uFlowSpeed:         { value: flowSpeed },
-        uDensity:           { value: density },
+        // Reduce shader workload on iOS: fewer particles, slower flow, dimmer glow
+        uDensity:           { value: isIOS ? density * 0.65 : density },
         uHueShift:          { value: hueShift },
-        uSpeed:             { value: speed },
+        uSpeed:             { value: isIOS ? speed * 0.65 : speed },
         uMouse:             { value: new Float32Array([smoothMousePos.current.x, smoothMousePos.current.y]) },
-        uGlowIntensity:     { value: glowIntensity },
+        uGlowIntensity:     { value: isIOS ? glowIntensity * 0.5 : glowIntensity },
         uSaturation:        { value: saturation },
-        uMouseAttraction:   { value: mouseAttraction },
-        uPulseIntensity:    { value: pulseIntensity },
+        uMouseAttraction:   { value: isIOS ? false : mouseAttraction },
+        uPulseIntensity:    { value: isIOS ? pulseIntensity * 0.4 : pulseIntensity },
         uWebComplexity:     { value: webComplexity },
         uAttractionStrength:{ value: attractionStrength },
         uMouseActiveFactor: { value: 0.0 },
-        uEnergyFlow:        { value: energyFlow },
+        uEnergyFlow:        { value: isIOS ? energyFlow * 0.45 : energyFlow },
         uTransparent:       { value: transparent },
-        uBrightness:        { value: brightness },
+        uBrightness:        { value: isIOS ? brightness * 0.65 : brightness },
       },
     });
 
@@ -329,8 +338,26 @@ export function PlasmaWeb({
     }
     gl.canvas.addEventListener('webglcontextlost', handleContextLost);
 
+    // Pause rendering when the page/app is backgrounded —
+    // iOS aggressively purges WebGL contexts in hidden tabs
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        cancelAnimationFrame(animateId);
+      } else {
+        lastFrameTime = 0;
+        animateId = requestAnimationFrame(update);
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Throttle to 30 fps on iOS to reduce sustained GPU heat and memory pressure
+    const frameInterval = isIOS ? 1000 / 30 : 0;
+    let lastFrameTime = 0;
+
     function update(t: number) {
       animateId = requestAnimationFrame(update);
+      if (frameInterval > 0 && t - lastFrameTime < frameInterval) return;
+      lastFrameTime = t;
       if (!disableAnimation) {
         program.uniforms.uTime.value = t * 0.001;
       }
@@ -381,6 +408,7 @@ export function PlasmaWeb({
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseleave', handleMouseLeave);
       }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       gl.canvas.removeEventListener('webglcontextlost', handleContextLost);
       if (ctn.contains(gl.canvas)) ctn.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();

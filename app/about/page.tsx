@@ -1,142 +1,186 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0 },
-};
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
+const FEATURES = [
+  {
+    icon: "⚡",
+    title: "Always On-Screen",
+    desc: "Zooey sits at the edge of your screen, not buried in a tab. One keystroke away, every time.",
+  },
+  {
+    icon: "🔁",
+    title: "No Tab Switching",
+    desc: "Stay in whatever you are doing. Zooey answers from right where you already are.",
+  },
+  {
+    icon: "🎛️",
+    title: "Switchable Modes",
+    desc: "Write, code, calculate, research, create. Switch modes as fast as your thoughts do.",
+  },
+  {
+    icon: "🚀",
+    title: "Fast Responses",
+    desc: "Zooey responds in the time it takes to form the question. No loading, no waiting.",
+  },
+  {
+    icon: "🖥️",
+    title: "Lives on Your Desktop",
+    desc: "Runs natively on your machine. Nothing opens in a browser. Nothing leaves your screen.",
+  },
+  {
+    icon: "👾",
+    title: "Just Zooey",
+    desc: "No bloat, no dashboards, no settings maze. Just Zooey and whatever you need done.",
+  },
+];
 
 export default function AboutPage() {
   return (
-    <main className="relative min-h-screen pt-24">
+    <main className="relative min-h-screen pt-24 pb-20">
+      <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
 
-      {/* Soft green radial behind content */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 55% at 50% 38%, rgba(74,222,128,0.07) 0%, transparent 70%)",
-        }}
-      />
+        {/* ── Split hero ─────────────────────────────────────────────────── */}
+        <section className="flex flex-col items-center justify-center gap-10 pt-8 md:flex-row md:gap-16 md:pt-10">
 
-      <motion.div
-        className="relative z-10 mx-auto flex min-h-[calc(100dvh-6rem)] max-w-2xl flex-col items-center justify-center px-6 pb-16 pt-12 text-center"
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-      >
-
-        {/* Eyebrow */}
-        <motion.p
-          variants={fadeUp}
-          transition={{ duration: 0.5 }}
-          className="text-[11px] font-semibold uppercase tracking-[0.35em] text-green-300/60"
-        >
-          About
-        </motion.p>
-
-        {/* Headline */}
-        <motion.h1
-          variants={fadeUp}
-          transition={{ duration: 0.55 }}
-          className="mt-5 font-display text-5xl font-semibold leading-[1.08] tracking-tight text-white sm:text-6xl md:text-7xl"
-          style={{
-            textShadow:
-              "0 0 40px rgba(74,222,128,0.2), 0 0 80px rgba(74,222,128,0.08), 0 4px 24px rgba(0,0,0,0.6)",
-          }}
-        >
-          One person.<br />One obsession.
-        </motion.h1>
-
-        {/* Body paragraphs */}
-        <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.55 }}
-          className="mx-auto mt-8 max-w-lg space-y-4 text-base leading-7 text-white/50"
-        >
-          <p>
-            Zooey was built out of frustration with context switching. Every tool pulled you away from
-            what you were doing, a browser tab, a separate window, a different app entirely. The thread
-            breaks every time.
-          </p>
-          <p>
-            Zooey lives on your desktop. It does not ask you to go anywhere. You stay in flow, and it
-            answers from right where you are.
-          </p>
-        </motion.div>
-
-        {/* Origin card */}
-        <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.55 }}
-          className="relative mx-auto mt-12 w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-7 text-left backdrop-blur-xl"
-          style={{
-            boxShadow:
-              "0 0 0 1px rgba(74,222,128,0.06), 0 4px 32px rgba(0,0,0,0.5), 0 0 40px rgba(74,222,128,0.04)",
-          }}
-        >
-          {/* top shimmer line */}
-          <div
-            className="absolute inset-x-0 top-0 h-px"
+          {/* Left: Zooey icon card */}
+          <motion.div
+            initial={{ opacity: 0, x: -28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.65, ease: EASE }}
+            className="relative w-full max-w-[400px] shrink-0 overflow-hidden rounded-2xl"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(74,222,128,0.3) 50%, transparent)",
+              background: "linear-gradient(135deg, rgba(13,17,22,0.95), rgba(9,12,16,0.98))",
+              border: "1px solid rgba(74,222,128,0.14)",
+              boxShadow: "0 0 60px rgba(74,222,128,0.12), 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(74,222,128,0.05)",
             }}
-          />
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-green-300/60">
-            Origin
-          </p>
-          <p className="text-sm leading-7 text-white/55">
-            Zooey was built out of frustration with context switching. Every tool required leaving what
-            you were doing. This one does not.
-          </p>
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.5 }}
-          className="mt-10"
-        >
-          <Link
-            href="/waitlist"
-            className="group inline-flex items-center gap-2 rounded-full border border-green-400/25 bg-green-400/10 px-7 py-3 text-sm font-semibold text-green-300 transition-all duration-200 hover:border-green-400/50 hover:bg-green-400/18 hover:text-green-200 hover:shadow-[0_0_24px_rgba(74,222,128,0.18)]"
           >
-            Get early access
-            <svg
-              className="transition-transform duration-200 group-hover:translate-x-0.5"
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-            >
-              <path
-                d="M1 7h12M8 2l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            {/* Top shimmer line */}
+            <div
+              className="absolute inset-x-0 top-0 h-px"
+              style={{ background: "linear-gradient(90deg, transparent, rgba(74,222,128,0.4) 50%, transparent)" }}
+            />
+            {/* Subtle corner glow */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: "radial-gradient(ellipse 60% 50% at 50% 100%, rgba(74,222,128,0.06) 0%, transparent 70%)" }}
+            />
+            <div className="flex aspect-square items-center justify-center p-14">
+              <Image
+                src="/zooey-icon.png"
+                alt="Zooey"
+                width={220}
+                height={220}
+                priority
+                className="h-auto w-full animate-float object-contain drop-shadow-[0_0_36px_rgba(74,222,128,0.5)]"
               />
-            </svg>
-          </Link>
-        </motion.div>
+            </div>
+          </motion.div>
 
-        {/* Social links */}
+          {/* Right: Text */}
+          <motion.div
+            initial={{ opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.65, delay: 0.1, ease: EASE }}
+            className="max-w-lg"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-green-300/60">
+              About
+            </p>
+            <h1 className="mt-3 text-2xl font-semibold leading-snug text-white/90 md:text-3xl">
+              One person.<br />One obsession.
+            </h1>
+            <div
+              className="mt-3 h-[3px] w-24 rounded-full"
+              style={{ background: "linear-gradient(90deg, rgba(74,222,128,0.9), rgba(74,222,128,0.12))" }}
+            />
+            <div className="mt-7 space-y-4 text-sm leading-7 text-white/50">
+              <p>
+                Zooey was built out of frustration with context switching. Every tool pulled you away from
+                what you were doing, a browser tab, a separate window, a different app entirely. The thread
+                breaks every time.
+              </p>
+              <p>
+                Zooey lives on your desktop. It does not ask you to go anywhere. You stay in flow, and it
+                answers from right where you are.
+              </p>
+            </div>
+            <Link
+              href="/waitlist"
+              className="group mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-green-400 px-7 py-3 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_28px_rgba(74,222,128,0.38)]"
+            >
+              Get early access
+              <svg
+                className="transition-transform duration-150 group-hover:translate-x-0.5"
+                width="13" height="12" viewBox="0 0 13 12" fill="none"
+              >
+                <path
+                  d="M12.53 6.53a.75.75 0 0 0 0-1.06L7.757.697a.75.75 0 1 0-1.06 1.06L10.939 6l-4.242 4.243a.75.75 0 0 0 1.06 1.06zM0 6v.75h12v-1.5H0z"
+                  fill="currentColor"
+                />
+              </svg>
+            </Link>
+          </motion.div>
+        </section>
+
+        {/* ── Feature grid ───────────────────────────────────────────────── */}
+        <section className="mt-20 md:mt-28">
+          <div className="relative grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16 lg:grid-cols-3">
+            {/* Background glow blob */}
+            <div
+              className="pointer-events-none absolute -top-32 left-1/2 -z-10 h-[360px] w-[560px] -translate-x-1/2 rounded-full blur-[200px]"
+              style={{ background: "rgba(74,222,128,0.055)" }}
+            />
+
+            {FEATURES.map((feat, i) => (
+              <motion.div
+                key={feat.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.07, ease: EASE }}
+                className="group"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-green-400/20 bg-green-400/10 text-lg transition-colors duration-200 group-hover:border-green-400/35 group-hover:bg-green-400/15">
+                  {feat.icon}
+                </div>
+                <div className="mt-5 space-y-2">
+                  <h3 className="text-base font-medium text-white/85">{feat.title}</h3>
+                  <p className="text-sm leading-6 text-white/45">{feat.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Social links ───────────────────────────────────────────────── */}
         <motion.div
-          variants={fadeUp}
-          transition={{ duration: 0.5 }}
-          className="mt-16 flex items-center gap-5"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: EASE }}
+          className="mt-16 flex items-center justify-center gap-4"
         >
-          {/* Twitter / X */}
+          {/* GitHub */}
           <a
-            href="#"
+            href="https://github.com/Phanerz"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub"
+            className="rounded-full border border-white/10 bg-white/[0.04] p-2.5 text-white/40 transition-all duration-200 hover:border-white/20 hover:text-white/80 hover:shadow-[0_0_16px_rgba(255,255,255,0.08)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+            </svg>
+          </a>
+
+          {/* X / Twitter */}
+          <a
+            href="https://x.com/PhanRz"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="X (Twitter)"
@@ -147,22 +191,9 @@ export default function AboutPage() {
             </svg>
           </a>
 
-          {/* TikTok */}
-          <a
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="TikTok"
-            className="rounded-full border border-white/10 bg-white/[0.04] p-2.5 text-white/40 transition-all duration-200 hover:border-white/20 hover:text-white/80 hover:shadow-[0_0_16px_rgba(255,255,255,0.08)]"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
-            </svg>
-          </a>
-
           {/* LinkedIn */}
           <a
-            href="#"
+            href="https://linkedin.com/in/phanerz/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="LinkedIn"
@@ -173,21 +204,34 @@ export default function AboutPage() {
             </svg>
           </a>
 
-          {/* GitHub */}
+          {/* WhatsApp */}
           <a
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="GitHub"
+            aria-label="WhatsApp"
             className="rounded-full border border-white/10 bg-white/[0.04] p-2.5 text-white/40 transition-all duration-200 hover:border-white/20 hover:text-white/80 hover:shadow-[0_0_16px_rgba(255,255,255,0.08)]"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+            </svg>
+          </a>
+
+          {/* Instagram */}
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="rounded-full border border-white/10 bg-white/[0.04] p-2.5 text-white/40 transition-all duration-200 hover:border-white/20 hover:text-white/80 hover:shadow-[0_0_16px_rgba(255,255,255,0.08)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
             </svg>
           </a>
         </motion.div>
 
-      </motion.div>
+      </div>
     </main>
   );
 }
