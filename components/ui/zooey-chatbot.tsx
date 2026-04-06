@@ -88,6 +88,7 @@ export function ZooeyChatbot() {
                 "0 0 32px rgba(74,222,128,0.08)",
               ].join(", "),
               backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
             }}
           >
             {/* Top shimmer */}

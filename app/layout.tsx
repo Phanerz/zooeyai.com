@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import { PlasmaWeb } from "@/components/ui/cosmic-plasma-web";
 import { Header } from "@/components/landing/header";
@@ -19,6 +19,13 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Zooey",
   description: "Zooey lives on your screen and executes desktop tasks instantly."
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Allow content to extend under the notch/home indicator on iPhone X+
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

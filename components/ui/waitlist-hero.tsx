@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import Image from "next/image"
@@ -82,8 +82,13 @@ function RingLayer({
 /* ── Confetti ─────────────────────────────────────────────────────────────── */
 function useConfetti() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rafRef = useRef<number>(0)
+
+  // Cancel any running animation when the component unmounts
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
 
   const fire = () => {
+    cancelAnimationFrame(rafRef.current)
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext("2d")
@@ -119,7 +124,7 @@ function useConfetti() {
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill()
         if (p.life <= 0) particles.splice(i, 1)
       }
-      requestAnimationFrame(animate)
+      rafRef.current = requestAnimationFrame(animate)
     }
     animate()
   }

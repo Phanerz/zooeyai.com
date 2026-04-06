@@ -6,16 +6,41 @@
   color-scheme: dark;
 }
 
+html {
+  /* Prevent iOS Safari from inflating font sizes in landscape */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html,
 body {
   max-width: 100%;
   overflow-x: clip;
   scroll-behavior: smooth;
+  /* Prevent iOS rubber-band overscroll which can trigger repaints/crashes */
+  overscroll-behavior: none;
 }
 
 body {
   min-height: 100vh;
+  /* Fallback for older iOS that doesn't support dvh */
+  min-height: -webkit-fill-available;
   background: #050608; /* dark base — plasma canvas renders above this */
+}
+
+/* Prevent double-tap zoom on interactive elements — makes taps feel instant on iOS */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Ensure backdrop-filter works on older iOS Safari */
+.panel-surface,
+[style*="backdrop-filter"] {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur, blur(20px));
 }
 
 ::selection {

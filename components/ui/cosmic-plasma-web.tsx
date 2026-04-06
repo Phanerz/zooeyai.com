@@ -251,10 +251,23 @@ export function PlasmaWeb({
   useEffect(() => {
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
-    const renderer = new Renderer({
-      alpha: transparent,
-      premultipliedAlpha: false,
-    });
+
+    // Skip WebGL on iOS and touch-only devices.
+    // iOS Safari has strict GPU memory limits — complex shaders cause hard crashes.
+    // The CSS gradient fallback in the JSX remains visible instead.
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (isIOS || isTouchOnly) return;
+
+    // Guard against browsers where WebGL is unavailable or blocked
+    let renderer: InstanceType<typeof Renderer>;
+    try {
+      renderer = new Renderer({ alpha: transparent, premultipliedAlpha: false });
+    } catch {
+      return; // CSS gradient fallback remains visible
+    }
     const gl = renderer.gl;
 
     if (transparent) {
@@ -307,7 +320,14 @@ export function PlasmaWeb({
     });
 
     const mesh = new Mesh(gl, { geometry, program });
-    let animateId: number;
+    let animateId: number = 0;
+
+    // Prevent the tab/app from freezing if the browser kills the WebGL context
+    function handleContextLost(e: Event) {
+      e.preventDefault();
+      cancelAnimationFrame(animateId);
+    }
+    gl.canvas.addEventListener('webglcontextlost', handleContextLost);
 
     function update(t: number) {
       animateId = requestAnimationFrame(update);
@@ -329,10 +349,12 @@ export function PlasmaWeb({
     animateId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
-    // Style the canvas so it fills its container
+    // Position canvas absolutely so it overlays the gradient fallback div
+    gl.canvas.style.position = 'absolute';
+    gl.canvas.style.top = '0';
+    gl.canvas.style.left = '0';
     gl.canvas.style.width = '100%';
     gl.canvas.style.height = '100%';
-    gl.canvas.style.display = 'block';
 
     // Listen on window so pointer-events-none wrapper doesn't block events
     function handleMouseMove(e: MouseEvent) {
@@ -359,6 +381,7 @@ export function PlasmaWeb({
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseleave', handleMouseLeave);
       }
+      gl.canvas.removeEventListener('webglcontextlost', handleContextLost);
       if (ctn.contains(gl.canvas)) ctn.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
@@ -369,5 +392,21 @@ export function PlasmaWeb({
     transparent, brightness,
   ]);
 
-  return <div ref={ctnDom} className="w-full h-full" />;
+  return (
+    <div ref={ctnDom} className="relative w-full h-full">
+      {/* CSS gradient — always present as a base layer.
+          On desktop the WebGL canvas sits on top of it (position:absolute).
+          On mobile/iOS the WebGL is skipped entirely so this is what shows. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: [
+            'radial-gradient(ellipse 80% 50% at 50% 30%, rgba(74,222,128,0.07) 0%, transparent 65%)',
+            'radial-gradient(ellipse 50% 60% at 82% 72%, rgba(111,120,255,0.05) 0%, transparent 60%)',
+            'radial-gradient(ellipse 55% 40% at 15% 60%, rgba(74,222,128,0.04) 0%, transparent 55%)',
+          ].join(', '),
+        }}
+      />
+    </div>
+  );
 }
