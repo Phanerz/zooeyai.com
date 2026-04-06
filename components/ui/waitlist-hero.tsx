@@ -150,12 +150,13 @@ function WaitlistHeroInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmed, plan: planId || null }),
       })
-      const data = await res.json()
       if (!res.ok) {
-        setErrorMsg(data.error ?? "Something went wrong. Try again.")
+        const data = await res.json().catch(() => ({}))
+        setErrorMsg(data.error ?? `Server error (${res.status}). Try again.`)
         setStatus("error")
         return
       }
+      const data = await res.json()
       setStatus("success")
       setEmail("")
       fire()
