@@ -79,9 +79,9 @@ export function ZooeyChatbot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 4 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="absolute right-0 w-[210px] rounded-2xl px-5 py-3.5 text-center md:w-[240px]"
+            className="absolute left-1/2 w-[210px] -translate-x-1/2 rounded-2xl px-5 py-3.5 text-center md:w-[240px]"
             style={{
-              bottom: "calc(100% + 10px)",
+              bottom: "calc(100% + 4px)",
               /* Rich dark glass with subtle green undertone */
               background:
                 "linear-gradient(135deg, rgba(16,20,32,0.98) 0%, rgba(12,18,24,0.98) 100%)",
