@@ -134,19 +134,35 @@ function WaitlistHeroInner() {
   const planMeta = PLAN_META[planId] ?? null
 
   const [email, setEmail] = useState("")
-  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [errorMsg, setErrorMsg] = useState("")
   const { canvasRef, fire } = useConfetti()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = email.trim()
     if (!trimmed || !trimmed.includes("@")) return
     setStatus("loading")
-    setTimeout(() => {
+    setErrorMsg("")
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, plan: planId || null }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setErrorMsg(data.error ?? "Something went wrong. Try again.")
+        setStatus("error")
+        return
+      }
       setStatus("success")
       setEmail("")
       fire()
-    }, 1100)
+    } catch {
+      setErrorMsg("Network error. Please try again.")
+      setStatus("error")
+    }
   }
 
   return (
@@ -369,6 +385,10 @@ function WaitlistHeroInner() {
             </div>
           </form>
         </div>
+
+        {status === "error" && errorMsg && (
+          <p className="text-sm font-medium text-red-400/90">{errorMsg}</p>
+        )}
 
         <p className="text-xs text-white/25">No spam. Just one email when Zooey is ready.</p>
       </div>
