@@ -41,40 +41,34 @@ export function ZooeyChatbot() {
           >
             {/* Chat bubble body */}
             <div
-              className="relative rounded-2xl rounded-br-sm px-4 py-3"
+              className="relative rounded-[18px] px-5 py-3 text-center"
               style={{
-                background: "rgba(12, 20, 12, 0.95)",
-                border: "1px solid rgba(74,222,128,0.25)",
+                background: "rgba(16, 18, 28, 0.96)",
+                border: "1px solid rgba(255,255,255,0.07)",
                 boxShadow:
-                  "0 12px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(74,222,128,0.08), 0 0 24px rgba(74,222,128,0.07)",
-                backdropFilter: "blur(16px)",
+                  "0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4)",
+                backdropFilter: "blur(20px)",
               }}
             >
-              {/* Sender label */}
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-green-400/60">
-                Zooey
-              </p>
               {/* Message text */}
               <p className="text-sm font-medium leading-snug text-white">
                 {LINES[index]}
               </p>
 
-              {/* Tail — bottom-right corner pointing at Zooey */}
+              {/* Chevron tail pointing down toward Zooey's head */}
               <svg
-                className="absolute -bottom-[10px] right-10 md:right-16"
-                width="16"
-                height="10"
-                viewBox="0 0 16 10"
+                className="absolute -bottom-[14px] right-10 md:right-16"
+                width="22"
+                height="14"
+                viewBox="0 0 22 14"
                 fill="none"
               >
-                <path
-                  d="M0 0 L16 0 L8 10 Z"
-                  fill="rgba(12,20,12,0.95)"
-                />
-                <path
-                  d="M0.5 0.5 L15.5 0.5 L8 9.2 Z"
-                  stroke="rgba(74,222,128,0.25)"
-                  strokeWidth="0.8"
+                <polyline
+                  points="2,2 11,12 20,2"
+                  stroke="rgba(255,255,255,0.18)"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   fill="none"
                 />
               </svg>
