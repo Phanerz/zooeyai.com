@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,68 +18,115 @@ const LINES = [
   "Help free Zooey and Zooey help human!",
 ];
 
+/* Typing effect — reveals characters one by one */
+function TypingText({ text }: { text: string }) {
+  const [displayed, setDisplayed] = useState("");
+
+  useEffect(() => {
+    setDisplayed("");
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) clearInterval(id);
+    }, 28);
+    return () => clearInterval(id);
+  }, [text]);
+
+  return (
+    <span>
+      {displayed}
+      {displayed.length < text.length && (
+        <span className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[1px] animate-pulse rounded-full bg-green-400/70" />
+      )}
+    </span>
+  );
+}
+
 export function ZooeyChatbot() {
   const [index, setIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   function handleClick() {
     setIndex((prev) => (prev === null ? 0 : (prev + 1) % LINES.length));
   }
 
+  /* Dismiss when clicking outside the component */
+  useEffect(() => {
+    if (index === null) return;
+    function onClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIndex(null);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [index]);
+
   return (
     /*
-      This fixed div shrinks to the button width (w-20 / w-32) because the
-      bubble + chevron are both absolute — they don't affect layout sizing.
-      That means left:50% on any absolute child = exactly the icon centre.
+      Fixed div shrinks to button width because bubble + chevron are absolute.
+      left:50% on any absolute child therefore = exact icon centre.
     */
-    <div className="fixed bottom-6 right-6 z-50 md:bottom-2 md:right-16">
+    <div ref={containerRef} className="fixed bottom-6 right-6 z-50 md:bottom-2 md:right-16">
 
-      {/* Bubble — absolutely above the icon, right-edge-aligned */}
+      {/* Bubble */}
       <AnimatePresence mode="wait">
         {index !== null && (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 10, scale: 0.93 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 400, damping: 26 }}
-            className="absolute right-0 w-[220px] rounded-xl px-5 py-3 text-center md:w-[250px]"
+            initial={{ opacity: 0, scale: 0.88, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 4 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            className="absolute right-0 w-[210px] rounded-2xl px-5 py-3.5 text-center md:w-[240px]"
             style={{
-              bottom: "calc(100% + 20px)",
-              background: "rgba(14, 17, 26, 0.97)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4)",
-              backdropFilter: "blur(20px)",
+              bottom: "calc(100% + 10px)",
+              /* Rich dark glass with subtle green undertone */
+              background:
+                "linear-gradient(135deg, rgba(16,20,32,0.98) 0%, rgba(12,18,24,0.98) 100%)",
+              border: "1px solid rgba(74,222,128,0.18)",
+              boxShadow: [
+                "0 4px 24px rgba(0,0,0,0.7)",
+                "0 1px 0 rgba(255,255,255,0.06) inset",
+                "0 0 0 1px rgba(74,222,128,0.06)",
+                "0 0 32px rgba(74,222,128,0.08)",
+              ].join(", "),
+              backdropFilter: "blur(24px)",
             }}
           >
-            <p className="text-sm font-medium leading-snug text-white">
-              {LINES[index]}
+            {/* Subtle top shimmer line */}
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-2xl"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(74,222,128,0.3) 50%, transparent)",
+              }}
+            />
+            <p className="text-[13px] font-medium leading-snug text-white/90">
+              <TypingText text={LINES[index]} />
             </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/*
-        Chevron — separate from the bubble so its position is independent.
-        left-1/2 + -translate-x-1/2 centres it over the icon because this
-        container is exactly as wide as the button (bubble is absolute, so
-        it doesn't contribute to the container's width).
-      */}
+      {/* Chevron — centred over icon via left-1/2 on the icon-width container */}
       <AnimatePresence>
         {index !== null && (
           <motion.div
             key="chevron"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ delay: 0.05, duration: 0.2 }}
             className="absolute left-1/2 -translate-x-1/2"
-            style={{ bottom: "calc(100% + 4px)" }}
+            style={{ bottom: "calc(100% + 1px)" }}
           >
-            <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+            <svg width="18" height="10" viewBox="0 0 18 10" fill="none">
               <polyline
-                points="2,2 10,12 18,2"
-                stroke="rgba(255,255,255,0.22)"
-                strokeWidth="2.5"
+                points="2,1 9,8 16,1"
+                stroke="rgba(74,222,128,0.35)"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
