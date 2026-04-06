@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "@/components/landing/footer";
 
-const HIDDEN_ON = ["/waitlist"];
+const HIDDEN_ON = ["/waitlist", "/about"];
 
 export function ConditionalFooter() {
   const pathname = usePathname();
