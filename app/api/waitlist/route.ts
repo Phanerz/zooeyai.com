@@ -3,41 +3,42 @@ import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-  const resend = new Resend(process.env.RESEND_API_KEY!);
-  const { email, plan } = await req.json();
+  try {
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const resend = new Resend(process.env.RESEND_API_KEY!);
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "Invalid email." }, { status: 400 });
-  }
+    const { email, plan } = await req.json();
 
-  // Insert — ignore duplicate emails gracefully
-  const { error: dbError } = await supabase
-    .from("waitlist")
-    .insert({ email: email.toLowerCase().trim(), plan: plan || null });
-
-  if (dbError) {
-    if (dbError.code === "23505") {
-      // Already on the list — still show success so they don't feel bad
-      return NextResponse.json({ ok: true, duplicate: true });
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Invalid email." }, { status: 400 });
     }
-    console.error("Supabase error:", dbError);
-    return NextResponse.json({ error: "Could not save. Try again." }, { status: 500 });
-  }
 
-  // Send confirmation email
-  const planLabel = plan
-    ? { lite: "Zooey Lite", plus: "Zooey Plus", maxx: "Zooey Maxx" }[plan as string] ?? ""
-    : "";
+    // Insert — ignore duplicate emails gracefully
+    const { error: dbError } = await supabase
+      .from("waitlist")
+      .insert({ email: email.toLowerCase().trim(), plan: plan || null });
 
-  await resend.emails.send({
-    from: "Zooey <waitlist@zooeyai.com>",
-    to: email,
-    subject: "You're on the Zooey waitlist 👾",
-    html: `
+    if (dbError) {
+      if (dbError.code === "23505") {
+        return NextResponse.json({ ok: true, duplicate: true });
+      }
+      console.error("Supabase error:", JSON.stringify(dbError));
+      return NextResponse.json({ error: `DB error: ${dbError.message}` }, { status: 500 });
+    }
+
+    // Send confirmation email
+    const planLabel = plan
+      ? { lite: "Zooey Lite", plus: "Zooey Plus", maxx: "Zooey Maxx" }[plan as string] ?? ""
+      : "";
+
+    const { error: emailError } = await resend.emails.send({
+      from: "Zooey <waitlist@zooeyai.com>",
+      to: email,
+      subject: "You're on the Zooey waitlist 👾",
+      html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -92,7 +93,19 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>`,
-  });
+    });
 
-  return NextResponse.json({ ok: true });
+    if (emailError) {
+      console.error("Resend error:", JSON.stringify(emailError));
+      // Still succeed — email is a bonus, DB insert is the important part
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Unhandled error in /api/waitlist:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unexpected error." },
+      { status: 500 }
+    );
+  }
 }
