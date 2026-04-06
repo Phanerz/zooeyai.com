@@ -26,50 +26,45 @@ export function ZooeyChatbot() {
   }
 
   return (
-    /* Anchor point — icon always stays here, bubble grows upward absolutely */
     <div className="fixed bottom-6 right-6 z-50 md:bottom-2 md:right-16">
-      {/* Speech bubble — absolutely above the icon, never shifts layout */}
       <AnimatePresence mode="wait">
         {index !== null && (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 10, scale: 0.92 }}
+            initial={{ opacity: 0, y: 10, scale: 0.93 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 420, damping: 28 }}
-            className="absolute bottom-[calc(100%-4px)] right-0 w-[230px] md:w-[260px]"
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 26 }}
+            /* Stack: bubble then chevron row, all right-aligned above the icon */
+            className="absolute bottom-full right-0 flex flex-col items-end pb-1"
           >
-            {/* Chat bubble body */}
+            {/* Bubble */}
             <div
-              className="relative rounded-[18px] px-5 py-3 text-center"
+              className="mb-1 w-[220px] rounded-xl px-5 py-3 text-center md:w-[250px]"
               style={{
-                background: "rgba(16, 18, 28, 0.96)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                boxShadow:
-                  "0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4)",
+                background: "rgba(14, 17, 26, 0.97)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4)",
                 backdropFilter: "blur(20px)",
               }}
             >
-              {/* Message text */}
               <p className="text-sm font-medium leading-snug text-white">
                 {LINES[index]}
               </p>
+            </div>
 
-              {/* Chevron tail pointing down toward Zooey's head */}
-              <svg
-                className="absolute -bottom-[14px] right-10 md:right-16"
-                width="22"
-                height="14"
-                viewBox="0 0 22 14"
-                fill="none"
-              >
+            {/*
+              Chevron row — same width as the icon button (w-20 / w-32).
+              justify-center always places the chevron over the exact centre of Zooey's head.
+            */}
+            <div className="flex w-20 justify-center md:w-32">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
                 <polyline
-                  points="2,2 11,12 20,2"
-                  stroke="rgba(255,255,255,0.18)"
-                  strokeWidth="2.2"
+                  points="2,2 10,10 18,2"
+                  stroke="rgba(255,255,255,0.22)"
+                  strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  fill="none"
                 />
               </svg>
             </div>
@@ -77,10 +72,10 @@ export function ZooeyChatbot() {
         )}
       </AnimatePresence>
 
-      {/* Zooey icon — position never changes */}
+      {/* Zooey icon — never moves */}
       <button
         onClick={handleClick}
-        className="relative w-20 cursor-pointer md:w-32"
+        className="w-20 cursor-pointer md:w-32"
         aria-label="Chat with Zooey"
         style={{ display: "block" }}
       >
