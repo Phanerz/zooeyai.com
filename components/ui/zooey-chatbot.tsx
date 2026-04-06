@@ -61,7 +61,7 @@ export function ZooeyChatbot() {
 
               {/* Tail — bottom-right corner pointing at Zooey */}
               <svg
-                className="absolute -bottom-[10px] right-3"
+                className="absolute -bottom-[10px] right-10 md:right-16"
                 width="16"
                 height="10"
                 viewBox="0 0 16 10"
