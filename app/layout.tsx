@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
-import Image from "next/image";
 import { PlasmaWeb } from "@/components/ui/cosmic-plasma-web";
 import { Header } from "@/components/landing/header";
 import { ConditionalFooter } from "@/components/landing/conditional-footer";
+import { ZooeyChatbot } from "@/components/ui/zooey-chatbot";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -58,16 +58,8 @@ export default function RootLayout({
         {/* Global footer — hidden on /waitlist */}
         <ConditionalFooter />
 
-        {/* Persistent Zooey corner icon */}
-        <div className="pointer-events-none fixed bottom-6 right-6 z-50 w-20 md:bottom-0 md:right-16 md:w-32">
-          <Image
-            src="/zooey-icon.png"
-            alt="Zooey"
-            width={144}
-            height={144}
-            className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)]"
-          />
-        </div>
+        {/* Persistent Zooey chatbot */}
+        <ZooeyChatbot />
       </body>
     </html>
   );
