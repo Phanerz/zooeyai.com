@@ -50,9 +50,9 @@ const zooeyFeatures = [
   },
   {
     id: 5,
-    title: "Six Clear Modes",
+    title: "Switchable Modes",
     date: "Feature 05",
-    content: "Write, Research, Code, Maths, Email, Grammar. Pick a mode and Zooey already knows the shape of the task.",
+    content: "Write, Research, Code, Maths, Freaky, Grammar. Pick a mode and Zooey already knows the shape of the task.",
     category: "Clarity",
     icon: Sliders,
     relatedIds: [4, 1],

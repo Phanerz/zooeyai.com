@@ -56,9 +56,9 @@ const features = [
   },
   {
     id: 'modes',
-    title: 'Six Clear Modes',
+    title: 'Switchable Modes',
     eyebrow: 'Tell Zooey what kind of help you need.',
-    blurb: 'Write, Research, Code, Maths, Email, Grammar — each mode is tuned for one job, so Zooey knows exactly how to show up for you.',
+    blurb: 'Write, Research, Code, Maths, Freaky, Grammar — each mode is tuned for one job, so Zooey knows exactly how to show up for you.',
     detail:
       'When you pick a mode, Zooey already knows the shape of the task. No fussing with prompts or rephrasing to get the right output. Just pick and go.',
     icon: Command,
