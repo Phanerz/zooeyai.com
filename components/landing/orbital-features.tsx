@@ -41,7 +41,7 @@ const zooeyFeatures = [
     id: 4,
     title: "Fast & Private",
     date: "Feature 04",
-    content: "Runs locally, responds instantly. Your data stays with you.",
+    content: "Zooey responds in a flash and never shares your conversations. What happens on your screen stays on your screen.",
     category: "Privacy",
     icon: Lock,
     relatedIds: [3, 5],

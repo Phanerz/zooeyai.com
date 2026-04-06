@@ -47,10 +47,10 @@ const features = [
   {
     id: 'private',
     title: 'Fast. Private. Yours.',
-    eyebrow: 'Runs locally, responds instantly.',
-    blurb: 'Your data stays with you, and the whole thing feels personal from the first shortcut.',
+    eyebrow: ‘Instant answers. Zero compromises.’,
+    blurb: ‘Zooey responds in a flash and never shares your conversations. What happens on your screen stays on your screen.’,
     detail:
-      'This is the difference between borrowing someone else’s tool and having your own. Faster response, less friction, more trust.',
+      ‘No waiting, no data leaks, no second-guessing. Zooey is fast enough to keep up with your thinking and private enough to trust with anything.’,
     icon: LockKeyhole,
     orbitClass: 'left-[6%] top-1/2 -translate-y-1/2'
   },
