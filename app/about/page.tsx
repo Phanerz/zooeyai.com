@@ -206,7 +206,7 @@ export default function AboutPage() {
 
           {/* WhatsApp */}
           <a
-            href="#"
+            href="https://wa.me/6281125001888"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="WhatsApp"
@@ -219,7 +219,7 @@ export default function AboutPage() {
 
           {/* Instagram */}
           <a
-            href="#"
+            href="https://www.instagram.com/phan.ez/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
