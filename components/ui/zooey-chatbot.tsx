@@ -26,7 +26,14 @@ export function ZooeyChatbot() {
   }
 
   return (
+    /*
+      This fixed div shrinks to the button width (w-20 / w-32) because the
+      bubble + chevron are both absolute — they don't affect layout sizing.
+      That means left:50% on any absolute child = exactly the icon centre.
+    */
     <div className="fixed bottom-6 right-6 z-50 md:bottom-2 md:right-16">
+
+      {/* Bubble — absolutely above the icon, right-edge-aligned */}
       <AnimatePresence mode="wait">
         {index !== null && (
           <motion.div
@@ -35,44 +42,53 @@ export function ZooeyChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 400, damping: 26 }}
-            /* Stack: bubble then chevron row, all right-aligned above the icon */
-            className="absolute bottom-full right-0 flex flex-col items-end pb-1"
+            className="absolute right-0 w-[220px] rounded-xl px-5 py-3 text-center md:w-[250px]"
+            style={{
+              bottom: "calc(100% + 20px)",
+              background: "rgba(14, 17, 26, 0.97)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4)",
+              backdropFilter: "blur(20px)",
+            }}
           >
-            {/* Bubble */}
-            <div
-              className="mb-1 w-[220px] rounded-xl px-5 py-3 text-center md:w-[250px]"
-              style={{
-                background: "rgba(14, 17, 26, 0.97)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4)",
-                backdropFilter: "blur(20px)",
-              }}
-            >
-              <p className="text-sm font-medium leading-snug text-white">
-                {LINES[index]}
-              </p>
-            </div>
-
-            {/*
-              Chevron row — same width as the icon button (w-20 / w-32).
-              justify-center always places the chevron over the exact centre of Zooey's head.
-            */}
-            <div className="flex w-20 justify-center md:w-32">
-              <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-                <polyline
-                  points="2,2 10,10 18,2"
-                  stroke="rgba(255,255,255,0.22)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
+            <p className="text-sm font-medium leading-snug text-white">
+              {LINES[index]}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Zooey icon — never moves */}
+      {/*
+        Chevron — separate from the bubble so its position is independent.
+        left-1/2 + -translate-x-1/2 centres it over the icon because this
+        container is exactly as wide as the button (bubble is absolute, so
+        it doesn't contribute to the container's width).
+      */}
+      <AnimatePresence>
+        {index !== null && (
+          <motion.div
+            key="chevron"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{ bottom: "calc(100% + 4px)" }}
+          >
+            <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+              <polyline
+                points="2,2 10,12 18,2"
+                stroke="rgba(255,255,255,0.22)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Icon — sets the container width; never moves */}
       <button
         onClick={handleClick}
         className="w-20 cursor-pointer md:w-32"
