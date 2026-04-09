@@ -60,9 +60,11 @@ function DemoOverlay() {
 export function Hero() {
   return (
     <section id="top" className="relative">
+      {/* webmSrc="/ZOOEY_DEMO_AD_1.webm" — add this prop once a WebM version is generated */}
       <ScrollExpandMedia
         mediaType="video"
         mediaSrc="/ZOOEY_DEMO%20AD_1.mp4"
+        posterSrc="/zooey-backdrop.svg"
         bgImageSrc="/zooey-backdrop.svg"
         titleLines={['Your AI assistant,', 'always on screen.']}
         description="Press a key. Zooey helps you write, fix, and solve, without leaving the window you are in."

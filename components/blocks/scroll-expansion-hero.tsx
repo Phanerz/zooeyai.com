@@ -8,6 +8,8 @@ import { Volume2, VolumeX } from 'lucide-react';
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
   mediaSrc: string;
+  /** WebM source (VP9) — smaller file, served first if browser supports it */
+  webmSrc?: string;
   posterSrc?: string;
   bgImageSrc: string;
   titleLines?: [string, string?];
@@ -33,6 +35,7 @@ const titleExitMobile = 128;
 const ScrollExpandMedia = ({
   mediaType = 'video',
   mediaSrc,
+  webmSrc,
   posterSrc,
   bgImageSrc,
   titleLines,
@@ -53,6 +56,9 @@ const ScrollExpandMedia = ({
   const descRef = useRef<HTMLParagraphElement | null>(null);
   const scrollHintRef = useRef<HTMLParagraphElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
+
+  // Tracks whether IntersectionObserver has already triggered video load
+  const videoLoadedRef = useRef(false);
 
   // Animation state kept in refs only — no React state for 60fps values
   const progressRef = useRef(0);
@@ -275,6 +281,30 @@ const ScrollExpandMedia = ({
     };
   }, []);
 
+  // IntersectionObserver — triggers video load+play only when container enters
+  // the viewport. With preload="none" the browser won't touch the video file
+  // until this fires, so it never competes with initial page rendering.
+  useEffect(() => {
+    if (mediaType !== 'video') return;
+    const container = mediaContainerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting || videoLoadedRef.current) return;
+        videoLoadedRef.current = true;
+        const vid = videoRef.current;
+        if (!vid) return;
+        vid.load();                      // kick off network request
+        vid.play().catch(() => {});      // autoplay (already muted, will succeed)
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [mediaType]);
+
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
@@ -332,21 +362,31 @@ const ScrollExpandMedia = ({
               >
                 {mediaType === 'video' ? (
                   <div className="relative h-full w-full">
+                    {/*
+                     * preload="none"  → browser fetches zero bytes until IntersectionObserver fires.
+                     *                   Page HTML/CSS/fonts load first, video doesn't compete.
+                     * no autoPlay     → we call video.play() manually after load() in the IO callback.
+                     * no src attr     → <source> children let the browser pick WebM (smaller) over MP4.
+                     * muted           → required for programmatic play() to succeed without user gesture.
+                     */}
                     <video
                       ref={videoRef}
-                      src={mediaSrc}
                       poster={posterSrc}
-                      autoPlay
                       muted
                       loop
                       playsInline
-                      preload="auto"
+                      preload="none"
                       className="h-full w-full rounded-md object-cover"
                       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
                       controls={false}
                       disablePictureInPicture
                       disableRemotePlayback
-                    />
+                    >
+                      {/* WebM (VP9) — ~30-40% smaller than MP4; add this file to /public to activate */}
+                      {webmSrc && <source src={webmSrc} type="video/webm" />}
+                      {/* MP4 (H.264) — universal fallback */}
+                      <source src={mediaSrc} type="video/mp4" />
+                    </video>
                     {/* Volume control — muted by default to satisfy browser autoplay policy */}
                     <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30">
                       <button
