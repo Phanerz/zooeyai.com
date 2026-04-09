@@ -42,8 +42,8 @@ const ScrollExpandMedia = ({
 }: ScrollExpandMediaProps) => {
   const [showContent, setShowContent] = useState(false);
   const [isMobileState, setIsMobileState] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(true);
 
   // DOM refs — all animation is applied directly to avoid React re-renders at 60fps
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -52,6 +52,7 @@ const ScrollExpandMedia = ({
   const h2Ref = useRef<HTMLHeadingElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
   const scrollHintRef = useRef<HTMLParagraphElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   // Animation state kept in refs only — no React state for 60fps values
   const progressRef = useRef(0);
@@ -101,8 +102,8 @@ const ScrollExpandMedia = ({
       scrollHintRef.current.style.transform = `translate3d(${titleOffset}vw, 0, 0)`;
     }
 
-    // Header — direct DOM, avoids a separate useEffect dependency on scrollProgress
-    const header = document.querySelector('header') as HTMLElement | null;
+    // Header — use cached ref, never querySelector in the hot path
+    const header = headerRef.current;
     if (header) {
       const visible = progress >= headerRevealThreshold;
       header.style.opacity = visible ? '1' : '0';
@@ -254,14 +255,14 @@ const ScrollExpandMedia = ({
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
-  // Clean up header styles on unmount
+  // Cache header ref on mount and clean up on unmount
   useEffect(() => {
+    headerRef.current = document.querySelector('header');
     return () => {
-      const header = document.querySelector('header') as HTMLElement | null;
-      if (header) {
-        header.style.opacity = '';
-        header.style.transform = '';
-        header.style.pointerEvents = '';
+      if (headerRef.current) {
+        headerRef.current.style.opacity = '';
+        headerRef.current.style.transform = '';
+        headerRef.current.style.pointerEvents = '';
       }
     };
   }, []);
@@ -275,10 +276,13 @@ const ScrollExpandMedia = ({
   }, []);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.volume = volume;
-      videoRef.current.muted = isMuted;
-    }
+    const vid = videoRef.current;
+    if (!vid) return;
+    // Set volume first, then muted — order matters in some browsers
+    vid.volume = volume;
+    vid.muted = isMuted;
+    // If unmuting, ensure it's playing
+    if (!isMuted && vid.paused) vid.play().catch(() => {});
   }, [volume, isMuted]);
 
   // Initial container size (progress = 0)
@@ -333,6 +337,7 @@ const ScrollExpandMedia = ({
                       src={mediaSrc}
                       poster={posterSrc}
                       autoPlay
+                      muted
                       loop
                       playsInline
                       preload="auto"
@@ -342,16 +347,20 @@ const ScrollExpandMedia = ({
                       disablePictureInPicture
                       disableRemotePlayback
                     />
-                    <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 backdrop-blur-sm transition-all duration-200">
+                    {/* Volume control — muted by default to satisfy browser autoplay policy */}
+                    <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30">
                       <button
                         onClick={() => setIsMuted(!isMuted)}
-                        className="text-white/70 transition-colors hover:text-white"
+                        className="flex items-center gap-1.5 text-white/70 transition-colors hover:text-white"
                         aria-label={isMuted ? 'Unmute' : 'Mute'}
                       >
                         {isMuted ? (
-                          <VolumeX className="h-4 w-4" />
+                          <>
+                            <VolumeX className="h-4 w-4" />
+                            <span className="text-[10px] uppercase tracking-wider text-white/50 group-hover:text-white/80 transition-colors">Unmute</span>
+                          </>
                         ) : (
-                          <Volume2 className="h-4 w-4" />
+                          <Volume2 className="h-4 w-4 text-green-300" />
                         )}
                       </button>
                       <input
@@ -365,7 +374,7 @@ const ScrollExpandMedia = ({
                           setVolume(val);
                           setIsMuted(val === 0);
                         }}
-                        className="w-20 accent-green-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                        className="w-16 accent-green-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                         aria-label="Volume"
                       />
                     </div>
