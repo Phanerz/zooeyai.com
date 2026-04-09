@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
@@ -48,6 +49,10 @@ const ScrollExpandMedia = ({
   const [showContent, setShowContent] = useState(false);
   const [mediaFullyExpanded, setMediaFullyExpanded] = useState(false);
   const [isMobileState, setIsMobileState] = useState(false);
+
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const progressRef = useRef(0);
@@ -225,6 +230,13 @@ const ScrollExpandMedia = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+      videoRef.current.muted = isMuted;
+    }
+  }, [volume, isMuted]);
+
   const expansionProgress = Math.min(scrollProgress, 1);
   const startWidth = isMobileState ? 210 : 360;
   const endWidth = isMobileState ? 352 : 1380;
@@ -283,19 +295,49 @@ const ScrollExpandMedia = ({
                 }}
               >
                 {mediaType === 'video' ? (
-                  <video
-                    src={mediaSrc}
-                    poster={posterSrc}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    className="pixel-border h-full w-full rounded-md border border-green-400/20 object-cover"
-                    controls={false}
-                    disablePictureInPicture
-                    disableRemotePlayback
-                  />
+                  <div className="relative h-full w-full">
+                    <video
+                      ref={videoRef}
+                      src={mediaSrc}
+                      poster={posterSrc}
+                      autoPlay
+                      loop
+                      playsInline
+                      preload="auto"
+                      className="pixel-border h-full w-full rounded-md border border-green-400/20 object-cover"
+                      controls={false}
+                      disablePictureInPicture
+                      disableRemotePlayback
+                    />
+                    <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 backdrop-blur-sm transition-all duration-200">
+                      <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className="text-white/70 transition-colors hover:text-white"
+                        aria-label={isMuted ? 'Unmute' : 'Mute'}
+                      >
+                        {isMuted ? (
+                          <VolumeX className="h-4 w-4" />
+                        ) : (
+                          <Volume2 className="h-4 w-4" />
+                        )}
+                      </button>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={isMuted ? 0 : volume}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          setVolume(val);
+                          if (val > 0) setIsMuted(false);
+                          else setIsMuted(true);
+                        }}
+                        className="w-20 accent-green-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                        aria-label="Volume"
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <Image
                     src={mediaSrc}

@@ -61,13 +61,12 @@ export function Hero() {
   return (
     <section id="top" className="relative">
       <ScrollExpandMedia
-        mediaType="image"
-        mediaSrc="/zooey-demo.svg"
+        mediaType="video"
+        mediaSrc="/ZOOEY_DEMO%20AD_1.mp4"
         bgImageSrc="/zooey-backdrop.svg"
         titleLines={['Your AI assistant,', 'always on screen.']}
         description="Press a key. Zooey helps you write, fix, and solve, without leaving the window you are in."
         scrollToExpand="Scroll to see Zooey in action"
-        mediaOverlay={<DemoOverlay />}
         presenceSrc="/zooey-icon.png"
       >
       </ScrollExpandMedia>

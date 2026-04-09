@@ -16,7 +16,7 @@ void main() {
 `;
 
 const fragmentShader = `
-precision highp float;
+precision mediump float;
 
 uniform float uTime;
 uniform vec3 uResolution;
@@ -39,7 +39,7 @@ uniform float uBrightness;
 
 varying vec2 vUv;
 
-#define NUM_LAYERS 3.0
+#define NUM_LAYERS 2.0
 #define PI 3.14159265359
 
 float Hash21(vec2 p) {
@@ -76,7 +76,8 @@ float fbm(vec2 p) {
   float amplitude = 0.5;
   float frequency = 1.0;
 
-  for(int i = 0; i < 4; i++) {
+  // 3 octaves instead of 4 — saves ~25% per fbm call (curl calls this 4×)
+  for(int i = 0; i < 3; i++) {
     value += amplitude * noise(p * frequency);
     amplitude *= 0.5;
     frequency *= 2.0;
@@ -145,7 +146,7 @@ vec3 PlasmaWeb(vec2 uv) {
 
   vec2 particleUv = uv * 20.0 + time * vec2(0.5, 0.3);
   float particles = 0.0;
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 2; i++) {
     vec2 pid = floor(particleUv + float(i) * 123.45);
     float pseed = Hash21(pid);
 
@@ -252,10 +253,12 @@ export function PlasmaWeb({
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
 
-    // Detect iOS for performance tuning — WebGL still runs on all devices
+    // iOS Safari crashes under sustained WebGL load regardless of quality reductions —
+    // skip WebGL entirely and show the CSS gradient fallback instead.
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) return;
 
     // Guard against browsers where WebGL is unavailable
     let renderer: InstanceType<typeof Renderer>;
@@ -263,16 +266,15 @@ export function PlasmaWeb({
       renderer = new Renderer({
         alpha: transparent,
         premultipliedAlpha: false,
-        // Low-power pipeline on iOS reduces heat and GPU memory pressure
-        powerPreference: (isIOS ? 'low-power' : 'high-performance') as WebGLPowerPreference,
+        powerPreference: 'high-performance' as WebGLPowerPreference,
       });
     } catch {
       return; // CSS gradient fallback remains visible
     }
 
-    // Cap DPR to 1 on iOS — a 3× DPR iPhone shades 9× more fragments per frame,
-    // exhausting Safari's ~256 MB GPU budget and crashing the tab. Visually near-identical.
-    renderer.dpr = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
+    // Cap DPR to 1.5 — at DPR 2 a 1080p monitor shades 4× more fragments than at DPR 1.
+    // 1.5 keeps the effect sharp while cutting fragment work by ~44% vs DPR 2.
+    renderer.dpr = Math.min(window.devicePixelRatio, 1.5);
 
     const gl = renderer.gl;
 
@@ -288,8 +290,7 @@ export function PlasmaWeb({
 
     function resize() {
       renderer.setSize(ctn.offsetWidth, ctn.offsetHeight);
-      // Re-apply DPR cap after each resize — Safari resets it on orientation change
-      renderer.dpr = isIOS ? 1 : Math.min(window.devicePixelRatio, 2);
+      renderer.dpr = Math.min(window.devicePixelRatio, 1.5);
       if (program) {
         program.uniforms.uResolution.value = new Color(
           gl.canvas.width,
@@ -310,21 +311,20 @@ export function PlasmaWeb({
         uResolution:        { value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height) },
         uFocal:             { value: new Float32Array(focal) },
         uFlowSpeed:         { value: flowSpeed },
-        // Reduce shader workload on iOS: fewer particles, slower flow, dimmer glow
-        uDensity:           { value: isIOS ? density * 0.65 : density },
+        uDensity:           { value: density },
         uHueShift:          { value: hueShift },
-        uSpeed:             { value: isIOS ? speed * 0.65 : speed },
+        uSpeed:             { value: speed },
         uMouse:             { value: new Float32Array([smoothMousePos.current.x, smoothMousePos.current.y]) },
-        uGlowIntensity:     { value: isIOS ? glowIntensity * 0.5 : glowIntensity },
+        uGlowIntensity:     { value: glowIntensity },
         uSaturation:        { value: saturation },
-        uMouseAttraction:   { value: isIOS ? false : mouseAttraction },
-        uPulseIntensity:    { value: isIOS ? pulseIntensity * 0.4 : pulseIntensity },
+        uMouseAttraction:   { value: mouseAttraction },
+        uPulseIntensity:    { value: pulseIntensity },
         uWebComplexity:     { value: webComplexity },
         uAttractionStrength:{ value: attractionStrength },
         uMouseActiveFactor: { value: 0.0 },
-        uEnergyFlow:        { value: isIOS ? energyFlow * 0.45 : energyFlow },
+        uEnergyFlow:        { value: energyFlow },
         uTransparent:       { value: transparent },
-        uBrightness:        { value: isIOS ? brightness * 0.65 : brightness },
+        uBrightness:        { value: brightness },
       },
     });
 
@@ -338,8 +338,7 @@ export function PlasmaWeb({
     }
     gl.canvas.addEventListener('webglcontextlost', handleContextLost);
 
-    // Pause rendering when the page/app is backgrounded —
-    // iOS aggressively purges WebGL contexts in hidden tabs
+    // Pause rendering when the page is backgrounded to avoid wasting GPU cycles
     function handleVisibilityChange() {
       if (document.hidden) {
         cancelAnimationFrame(animateId);
@@ -350,8 +349,9 @@ export function PlasmaWeb({
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Throttle to 30 fps on iOS to reduce sustained GPU heat and memory pressure
-    const frameInterval = isIOS ? 1000 / 30 : 0;
+    // Cap at 60 fps — uncapped on high-refresh monitors (144 Hz+) runs 2-4× more
+    // fragment shader work than needed and causes sustained GPU heat.
+    const frameInterval = 1000 / 60;
     let lastFrameTime = 0;
 
     function update(t: number) {
@@ -383,8 +383,13 @@ export function PlasmaWeb({
     gl.canvas.style.width = '100%';
     gl.canvas.style.height = '100%';
 
-    // Listen on window so pointer-events-none wrapper doesn't block events
+    // Listen on window so pointer-events-none wrapper doesn't block events.
+    // Throttle to ~30 fps to avoid flooding JS with mousemove events.
+    let lastMouseTime = 0;
     function handleMouseMove(e: MouseEvent) {
+      const now = performance.now();
+      if (now - lastMouseTime < 32) return;
+      lastMouseTime = now;
       targetMousePos.current = {
         x: e.clientX / window.innerWidth,
         y: 1.0 - e.clientY / window.innerHeight,
@@ -424,7 +429,7 @@ export function PlasmaWeb({
     <div ref={ctnDom} className="relative w-full h-full">
       {/* CSS gradient — always present as a base layer.
           On desktop the WebGL canvas sits on top of it (position:absolute).
-          On mobile/iOS the WebGL is skipped entirely so this is what shows. */}
+          On iOS/mobile this is what shows, since WebGL is skipped to prevent crashes. */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
