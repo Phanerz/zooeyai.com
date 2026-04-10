@@ -63,7 +63,7 @@ export function Hero() {
       {/* webmSrc="/ZOOEY_DEMO_AD_1.webm" — add this prop once a WebM version is generated */}
       <ScrollExpandMedia
         mediaType="video"
-        mediaSrc="/ZOOEY_DEMO%20AD_1.mp4"
+        mediaSrc="/zooey-hero-demo.mp4"
         posterSrc="/zooey-backdrop.svg"
         bgImageSrc="/zooey-backdrop.svg"
         titleLines={['Your AI assistant,', 'always on screen.']}
