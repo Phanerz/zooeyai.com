@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
+import { useIsIOS } from '@/lib/use-is-ios';
 
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
@@ -43,10 +44,16 @@ const ScrollExpandMedia = ({
   scrollToExpand,
   children
 }: ScrollExpandMediaProps) => {
+  const isIOS = useIsIOS();
+  // mounted gate — keeps the server render and first client render identical
+  // (a plain dark div) so there is never a hydration mismatch, and the heavy
+  // desktop scroll animation never touches the iOS DOM even for one frame.
+  const [mounted, setMounted] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [isMobileState, setIsMobileState] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(true);
+  const [shouldLoadIOSVideo, setShouldLoadIOSVideo] = useState(false);
 
   // DOM refs — all animation is applied directly to avoid React re-renders at 60fps
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -152,14 +159,66 @@ const ScrollExpandMedia = ({
     }
   };
 
+  // Mark as mounted — switches the placeholder to the real hero
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
+    if (isIOS) return;
     progressRef.current = 0;
     targetProgressRef.current = 0;
     applyProgressToDOM(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mediaType]);
+  }, [isIOS, mediaType]);
 
   useEffect(() => {
+    if (!isIOS || mediaType !== 'video') return;
+    const container = mediaContainerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          setShouldLoadIOSVideo(true);
+          const vid = videoRef.current;
+          if (vid) vid.play().catch(() => {});
+        } else {
+          videoRef.current?.pause();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [isIOS, mediaType]);
+
+  useEffect(() => {
+    if (!isIOS || mediaType !== 'video') return;
+
+    const handleVisibilityChange = () => {
+      const vid = videoRef.current;
+      if (!vid) return;
+      if (document.hidden) {
+        vid.pause();
+        return;
+      }
+      vid.play().catch(() => {});
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      videoRef.current?.pause();
+    };
+  }, [isIOS, mediaType]);
+
+  useEffect(() => {
+    // Skip ALL scroll/touch hijacking on iOS — the scroll→scrollTo(0) loop
+    // and passive:false touch listeners are the primary crash source on WebKit.
+    if (isIOS) return;
+
     const contentUnlocked = () =>
       targetProgressRef.current >= contentRevealThreshold;
 
@@ -248,7 +307,7 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener('touchend', handleTouchEnd as EventListener);
     };
-  }, []);
+  }, [isIOS]);
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -263,6 +322,7 @@ const ScrollExpandMedia = ({
 
   // Cache header ref on mount and clean up on unmount
   useEffect(() => {
+    if (isIOS) return;
     headerRef.current = document.querySelector('header');
     return () => {
       if (headerRef.current) {
@@ -271,20 +331,22 @@ const ScrollExpandMedia = ({
         headerRef.current.style.pointerEvents = '';
       }
     };
-  }, []);
+  }, [isIOS]);
 
   useEffect(() => {
+    if (isIOS) return;
     return () => {
       if (animationFrameRef.current) {
         window.cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [isIOS]);
 
   // IntersectionObserver — triggers video load+play only when container enters
   // the viewport. With preload="none" the browser won't touch the video file
   // until this fires, so it never competes with initial page rendering.
   useEffect(() => {
+    if (isIOS) return;
     if (mediaType !== 'video') return;
     const container = mediaContainerRef.current;
     if (!container) return;
@@ -303,9 +365,10 @@ const ScrollExpandMedia = ({
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, [mediaType]);
+  }, [isIOS, mediaType]);
 
   useEffect(() => {
+    if (isIOS) return;
     const vid = videoRef.current;
     if (!vid) return;
     // Set volume first, then muted — order matters in some browsers
@@ -313,11 +376,106 @@ const ScrollExpandMedia = ({
     vid.muted = isMuted;
     // If unmuting, ensure it's playing
     if (!isMuted && vid.paused) vid.play().catch(() => {});
-  }, [volume, isMuted]);
+  }, [isIOS, volume, isMuted]);
 
   // Initial container size (progress = 0)
   const initStartWidth = isMobileState ? 210 : 360;
   const initStartHeight = initStartWidth * 1.5;
+
+  // Before mount: return a plain dark placeholder.
+  // • Matches the server-rendered HTML exactly → zero hydration mismatch.
+  // • The heavy desktop scroll animation and the iOS hero both require the
+  //   client environment, so neither should render until after mount.
+  if (!mounted) {
+    return <div style={{ minHeight: "100dvh", background: "#050608" }} />;
+  }
+
+  // iOS/macOS Apple-device hero — no scroll animation, no WebGL, no touch hijacking.
+  // Keep the video, but only instantiate/play it when the frame is actually visible.
+  if (isIOS) {
+    return (
+      <div className="overflow-hidden">
+        <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden">
+          {/* Pure CSS background — no WebGL, no SVG, no GPU layers */}
+          <div
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              background: [
+                'radial-gradient(circle at 50% 0%, rgba(74,222,128,0.18) 0%, transparent 50%)',
+                'radial-gradient(circle at 80% 20%, rgba(111,120,255,0.18) 0%, transparent 45%)',
+              ].join(', '),
+            }}
+          />
+          <div className="container relative z-10 mx-auto flex flex-col items-center justify-center gap-6 px-6 py-16 text-center">
+            {titleLines?.[0] && (
+              <h1 className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 sm:text-6xl">
+                {titleLines[0]}
+              </h1>
+            )}
+            {titleLines?.[1] && (
+              <h2 className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 sm:text-6xl">
+                {titleLines[1]}
+              </h2>
+            )}
+            {description && (
+              <p className="w-fit rounded-full border border-white/10 bg-black/30 px-6 py-2.5 text-sm text-white/85 sm:text-base">
+                {description}
+              </p>
+            )}
+
+            {/* Video — safe on iOS: muted + playsInline + preload=metadata */}
+            {mediaType === 'video' && (
+              <div
+                ref={mediaContainerRef}
+                className="relative overflow-hidden rounded-2xl"
+                style={{
+                  width: '100%',
+                  maxWidth: '300px',
+                  aspectRatio: '9 / 16',
+                  border: '1px solid rgba(74, 222, 128, 0.2)',
+                  boxShadow: '0 0 32px rgba(74, 222, 128, 0.12)',
+                }}
+              >
+                {!shouldLoadIOSVideo && posterSrc ? (
+                  <Image
+                    src={posterSrc}
+                    alt={titleLines?.join(' ') || 'Zooey video poster'}
+                    fill
+                    priority
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : null}
+                <video
+                  ref={videoRef}
+                  autoPlay={shouldLoadIOSVideo}
+                  muted
+                  loop
+                  playsInline
+                  preload={shouldLoadIOSVideo ? 'metadata' : 'none'}
+                  poster={posterSrc}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  controls={false}
+                  disablePictureInPicture
+                  disableRemotePlayback
+                  onLoadedData={() => {
+                    videoRef.current?.play().catch(() => {});
+                  }}
+                >
+                  {shouldLoadIOSVideo && webmSrc ? <source src={webmSrc} type="video/webm" /> : null}
+                  {shouldLoadIOSVideo ? <source src={mediaSrc} type="video/mp4" /> : null}
+                </video>
+              </div>
+            )}
+          </div>
+          {children && (
+            <div className="w-full px-5 py-14">
+              {children}
+            </div>
+          )}
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-hidden" style={{ contain: 'paint' }}>
@@ -377,7 +535,7 @@ const ScrollExpandMedia = ({
                       playsInline
                       preload="none"
                       className="h-full w-full rounded-md object-cover"
-                      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+                      style={{ transform: 'translateZ(0)' }}
                       controls={false}
                       disablePictureInPicture
                       disableRemotePlayback
@@ -436,7 +594,6 @@ const ScrollExpandMedia = ({
                     ref={h1Ref}
                     className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl"
                     style={{
-                      willChange: 'transform',
                       textShadow:
                         '0 8px 28px rgba(2, 8, 12, 0.95), 0 0 24px rgba(74, 222, 128, 0.18)'
                     }}
@@ -448,7 +605,6 @@ const ScrollExpandMedia = ({
                       ref={h2Ref}
                       className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl"
                       style={{
-                        willChange: 'transform',
                         textShadow:
                           '0 8px 28px rgba(2, 8, 12, 0.95), 0 0 24px rgba(74, 222, 128, 0.18)'
                       }}
@@ -461,7 +617,6 @@ const ScrollExpandMedia = ({
                       ref={descRef}
                       className="w-fit cursor-default rounded-full border border-white/10 bg-black/30 px-6 py-2.5 text-sm text-white/85 backdrop-blur-[4px] shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-colors duration-200 hover:border-green-400/25 hover:bg-black/45 sm:text-base"
                       style={{
-                        willChange: 'transform',
                         textShadow: '0 3px 18px rgba(0, 0, 0, 0.8)'
                       }}
                     >
@@ -473,7 +628,6 @@ const ScrollExpandMedia = ({
                       ref={scrollHintRef}
                       className="rounded-full border border-green-400/20 bg-black/35 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-green-300 backdrop-blur-md shadow-[0_12px_28px_rgba(0,0,0,0.42)] md:text-sm"
                       style={{
-                        willChange: 'transform',
                         textShadow:
                           '0 3px 18px rgba(0, 0, 0, 0.9), 0 0 16px rgba(74, 222, 128, 0.14)'
                       }}

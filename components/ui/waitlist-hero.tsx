@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import Image from "next/image"
 import { StarButton } from "@/components/ui/star-button"
+import { useIsIOS } from "@/lib/use-is-ios"
 
 /* ── Plan meta ───────────────────────────────────────────────────────────────── */
 const PLAN_META: Record<string, { label: string; color: string; bg: string }> = {
@@ -142,6 +143,7 @@ function WaitlistHeroInner() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
   const { canvasRef, fire } = useConfetti()
+  const ios = useIsIOS()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -204,60 +206,62 @@ function WaitlistHeroInner() {
         .wl-draw-check   { stroke-dasharray: 24; stroke-dashoffset: 24; animation: wl-draw-check 0.38s ease-out 0.28s forwards; }
       `}</style>
 
-      {/* ── Background rings (perspective-tilted) ── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          perspective: "1200px",
-          transform: "perspective(1200px) rotateX(14deg)",
-          transformOrigin: "center 65%",
-        }}
-      >
-        <RingLayer
-          size={2000}
-          opacity={0.55}
-          clockwise
-          rings={[
-            { r: 970, dash: "3 14", strokeOpacity: 0.12 },
-            { r: 860, strokeOpacity: 0.07 },
-            { r: 750, dash: "2 20", strokeOpacity: 0.09 },
-          ]}
-          nodes={[
-            { angle: 30,  r: 970 },
-            { angle: 130, r: 970 },
-            { angle: 240, r: 970 },
-            { angle: 330, r: 860 },
-          ]}
-        />
-        <RingLayer
-          size={1200}
-          opacity={0.7}
-          clockwise={false}
-          rings={[
-            { r: 570, dash: "4 10", strokeOpacity: 0.18, strokeWidth: 1 },
-            { r: 490, strokeOpacity: 0.10 },
-            { r: 410, dash: "2 12", strokeOpacity: 0.14 },
-          ]}
-          nodes={[
-            { angle: 60,  r: 570 },
-            { angle: 175, r: 570 },
-            { angle: 300, r: 490 },
-          ]}
-        />
-        <RingLayer
-          size={680}
-          opacity={0.85}
-          clockwise
-          rings={[
-            { r: 320, dash: "5 8", strokeOpacity: 0.28, strokeWidth: 1.2 },
-            { r: 260, strokeOpacity: 0.15 },
-          ]}
-          nodes={[
-            { angle: 45,  r: 320 },
-            { angle: 200, r: 320 },
-          ]}
-        />
-      </div>
+      {/* ── Background rings — hidden on iOS (3 infinite-rotation layers crash WebKit) ── */}
+      {!ios && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            perspective: "1200px",
+            transform: "perspective(1200px) rotateX(14deg)",
+            transformOrigin: "center 65%",
+          }}
+        >
+          <RingLayer
+            size={2000}
+            opacity={0.55}
+            clockwise
+            rings={[
+              { r: 970, dash: "3 14", strokeOpacity: 0.12 },
+              { r: 860, strokeOpacity: 0.07 },
+              { r: 750, dash: "2 20", strokeOpacity: 0.09 },
+            ]}
+            nodes={[
+              { angle: 30,  r: 970 },
+              { angle: 130, r: 970 },
+              { angle: 240, r: 970 },
+              { angle: 330, r: 860 },
+            ]}
+          />
+          <RingLayer
+            size={1200}
+            opacity={0.7}
+            clockwise={false}
+            rings={[
+              { r: 570, dash: "4 10", strokeOpacity: 0.18, strokeWidth: 1 },
+              { r: 490, strokeOpacity: 0.10 },
+              { r: 410, dash: "2 12", strokeOpacity: 0.14 },
+            ]}
+            nodes={[
+              { angle: 60,  r: 570 },
+              { angle: 175, r: 570 },
+              { angle: 300, r: 490 },
+            ]}
+          />
+          <RingLayer
+            size={680}
+            opacity={0.85}
+            clockwise
+            rings={[
+              { r: 320, dash: "5 8", strokeOpacity: 0.28, strokeWidth: 1.2 },
+              { r: 260, strokeOpacity: 0.15 },
+            ]}
+            nodes={[
+              { angle: 45,  r: 320 },
+              { angle: 200, r: 320 },
+            ]}
+          />
+        </div>
+      )}
 
       {/* ── Gradient overlays — blend rings into bg from all edges ── */}
       <div
