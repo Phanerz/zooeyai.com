@@ -50,15 +50,13 @@ export default async function RootLayout({
    */
   const headersList = await headers();
   const ua = headersList.get("user-agent") ?? "";
-  const isAppleMobile =
+  const isIOSRequest =
     /iPad|iPhone|iPod/.test(ua) ||
     // iPad in desktop mode reports Mac-like tokens while still sending Mobile/
     (/Macintosh|Mac OS X/.test(ua) && /Mobile\//.test(ua));
-  const isMacDesktop = /Macintosh|Mac OS X/.test(ua);
-  const isAppleRequest = isAppleMobile || isMacDesktop;
 
   return (
-    <html lang="en" className={isAppleRequest ? "ios" : undefined}>
+    <html lang="en" className={isIOSRequest ? "ios" : undefined}>
       <body
         className={`${manrope.variable} ${spaceGrotesk.variable} font-sans text-white antialiased`}
         style={{ background: "#050608" }}

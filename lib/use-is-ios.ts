@@ -3,8 +3,7 @@
 import { useState } from "react";
 
 /**
- * Returns true on Apple devices we want to protect with the lighter WebKit path
- * (iPhone / iPad / iPod / Mac).
+ * Returns true on iOS/iPadOS devices we want to protect with the lighter WebKit path.
  *
  * Uses a lazy useState initializer so the value is synchronously correct
  * on the very first client render — no async useEffect, no brief false→true
@@ -28,7 +27,6 @@ export function useIsIOS(): boolean {
     const ua = navigator.userAgent;
     return (
       /iPad|iPhone|iPod/.test(ua) ||
-      /Macintosh|Mac OS X/.test(ua) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     );
   });

@@ -390,7 +390,7 @@ const ScrollExpandMedia = ({
     return <div style={{ minHeight: "100dvh", background: "#050608" }} />;
   }
 
-  // iOS/macOS Apple-device hero — no scroll animation, no WebGL, no touch hijacking.
+  // iOS/iPadOS hero — no scroll animation, no WebGL, no touch hijacking.
   // Keep the video, but only instantiate/play it when the frame is actually visible.
   if (isIOS) {
     return (
