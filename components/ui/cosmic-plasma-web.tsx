@@ -2,7 +2,6 @@
 
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
-import { useIsIOS } from '@/lib/use-is-ios';
 
 const vertexShader = `
 attribute vec2 uv;
@@ -249,13 +248,17 @@ export function PlasmaWeb({
   const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
   const targetMouseActive = useRef(0.0);
   const smoothMouseActive = useRef(0.0);
-  const isIOS = useIsIOS();
 
   useEffect(() => {
-    // iOS Safari crashes under sustained WebGL load — show CSS gradient fallback
-    if (isIOS) return;
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
+
+    // iOS Safari crashes under sustained WebGL load regardless of quality reductions —
+    // skip WebGL entirely and show the CSS gradient fallback instead.
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) return;
 
     // Guard against browsers where WebGL is unavailable
     let renderer: InstanceType<typeof Renderer>;
@@ -416,7 +419,6 @@ export function PlasmaWeb({
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [
-    isIOS,
     focal, flowSpeed, density, hueShift, disableAnimation, speed,
     mouseInteraction, glowIntensity, saturation, mouseAttraction,
     pulseIntensity, webComplexity, attractionStrength, energyFlow,

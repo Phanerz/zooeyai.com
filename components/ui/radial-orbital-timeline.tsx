@@ -4,7 +4,6 @@ import { ArrowRight, Link } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useIsIOS } from "@/lib/use-is-ios";
 
 interface TimelineItem {
   id: number;
@@ -30,7 +29,6 @@ const ORBIT_RADIUS = 260;
 export default function RadialOrbitalTimeline({
   timelineData,
 }: RadialOrbitalTimelineProps) {
-  const ios = useIsIOS();
   const [mounted, setMounted] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [rotationAngle, setRotationAngle] = useState<number>(0);
@@ -47,37 +45,37 @@ export default function RadialOrbitalTimeline({
   const modeRef = useRef<"auto" | "seeking" | "stopped">("auto");
   const seekTargetRef = useRef<number>(0);
 
-  // Phase 1 — mark as mounted so the placeholder is replaced.
-  // Kept separate from the RAF so the RAF can be guarded by `ios`.
-  useEffect(() => { setMounted(true); }, []);
-
-  // Phase 2 — start the RAF loop only on non-iOS.
-  // On iOS this effect returns early, so setRotationAngle is never called
-  // and there are zero 60 fps React re-renders from this component.
   useEffect(() => {
-    if (!mounted || ios) return;
+    setMounted(true);
 
+    // Single rAF loop — mode-switched via refs, never torn down
     const tick = (ts: number) => {
       if (!lastTsRef.current) lastTsRef.current = ts;
       const dt = ts - lastTsRef.current;
       lastTsRef.current = ts;
 
       if (modeRef.current === "auto") {
+        // 0.006 deg/ms → 6 deg/s → full orbit in 60 s
         angleRef.current = (angleRef.current + dt * 0.006) % 360;
+
       } else if (modeRef.current === "seeking") {
         const diff = (() => {
           let d = ((seekTargetRef.current - angleRef.current) % 360 + 360) % 360;
-          if (d > 180) d -= 360;
+          if (d > 180) d -= 360; // take the shorter arc
           return d;
         })();
+
         if (Math.abs(diff) < 0.25) {
+          // Arrived — snap and freeze
           angleRef.current = ((seekTargetRef.current % 360) + 360) % 360;
           modeRef.current = "stopped";
         } else {
+          // Ease-out: 8 % of remaining distance per frame, min 0.4 °/frame
           const step = Math.sign(diff) * Math.max(Math.abs(diff) * 0.08, 0.4);
           angleRef.current = ((angleRef.current + step) % 360 + 360) % 360;
         }
       }
+      // "stopped" → angle unchanged
 
       setRotationAngle(Number(angleRef.current.toFixed(3)));
       rafRef.current = requestAnimationFrame(tick);
@@ -85,7 +83,7 @@ export default function RadialOrbitalTimeline({
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [mounted, ios]); // re-evaluates when ios is determined after first render
+  }, []); // runs once — mode is controlled via modeRef
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === containerRef.current || e.target === orbitRef.current) {
@@ -148,38 +146,6 @@ export default function RadialOrbitalTimeline({
   };
 
   if (!mounted) return <div className="w-full h-screen" />;
-
-  // iOS static list — the RAF loop calls setRotationAngle at 60 fps causing
-  // constant React re-renders. Combined with animate-pulse / animate-ping on
-  // the center orb this crashes iPhone 11 and older before any interaction.
-  if (ios) {
-    return (
-      <div className="w-full px-5 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl">
-          <div className="grid gap-4">
-            {timelineData.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-4 rounded-2xl border border-green-400/20 bg-black/50 p-5"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-green-400/30 bg-green-400/10 text-green-300">
-                    <Icon size={20} />
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-green-300/60">{item.date}</p>
-                    <p className="mt-1 font-semibold text-white">{item.title}</p>
-                    <p className="mt-1 text-sm text-white/65">{item.content}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div

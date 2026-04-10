@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import { PlasmaWeb } from "@/components/ui/cosmic-plasma-web";
 import { Header } from "@/components/landing/header";
@@ -25,38 +24,17 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Allow content to extend under the notch/home indicator on iPhone X+
   viewportFit: "cover",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  /*
-   * Server-side iOS detection — the most reliable approach.
-   * We read the User-Agent from the incoming request header and stamp
-   * class="ios" directly onto <html> in the server-rendered HTML.
-   *
-   * This means:
-   *   • The CSS in globals.css targeting html.ios fires from byte 1
-   *     (before any JavaScript, before any React hydration)
-   *   • useIsIOS() can read document.documentElement.classList synchronously
-   *     in its useState lazy initializer, getting the correct value on the
-   *     very first client render — not after an async useEffect
-   *
-   * Every browser on iOS (Safari, Chrome, Opera, Firefox) uses WebKit and
-   * reports one of these UA strings.
-   */
-  const headersList = await headers();
-  const ua = headersList.get("user-agent") ?? "";
-  const isIOSRequest =
-    /iPad|iPhone|iPod/.test(ua) ||
-    // iPad in desktop mode reports Mac-like tokens while still sending Mobile/
-    (/Macintosh|Mac OS X/.test(ua) && /Mobile\//.test(ua));
-
   return (
-    <html lang="en" className={isIOSRequest ? "ios" : undefined}>
+    <html lang="en">
       <body
         className={`${manrope.variable} ${spaceGrotesk.variable} font-sans text-white antialiased`}
         style={{ background: "#050608" }}
@@ -78,9 +56,16 @@ export default async function RootLayout({
           />
         </div>
 
+        {/* Global header — visible immediately on all non-home pages */}
         <Header />
+
+        {/* Page content */}
         {children}
+
+        {/* Global footer — hidden on /waitlist */}
         <ConditionalFooter />
+
+        {/* Persistent Zooey chatbot */}
         <ZooeyChatbot />
       </body>
     </html>

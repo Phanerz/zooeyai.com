@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useIsIOS } from "@/lib/use-is-ios";
 
 const LINES = [
   "Hi, need Zooey help?",
@@ -46,7 +45,6 @@ function TypingText({ text }: { text: string }) {
 export function ZooeyChatbot() {
   const [index, setIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const ios = useIsIOS();
 
   function handleClick() {
     setIndex((prev) => (prev === null ? 0 : (prev + 1) % LINES.length));
@@ -145,7 +143,7 @@ export function ZooeyChatbot() {
           width={144}
           height={144}
           priority
-          className={`h-auto w-full object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)] transition-transform duration-150 hover:scale-105 active:scale-95${ios ? '' : ' animate-float'}`}
+          className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)] transition-transform duration-150 hover:scale-105 active:scale-95"
         />
       </button>
     </div>

@@ -3,7 +3,6 @@
 import { motion, useInView } from "framer-motion";
 import { Keyboard, MousePointer2, Zap } from "lucide-react";
 import { useRef } from "react";
-import { useIsIOS } from "@/lib/use-is-ios";
 
 const steps = [
   {
@@ -65,12 +64,10 @@ function AnimatedBorderCard({
   children,
   index,
   isInView,
-  ios,
 }: {
   children: React.ReactNode;
   index: number;
   isInView: boolean;
-  ios: boolean;
 }) {
   return (
     <motion.div
@@ -78,45 +75,45 @@ function AnimatedBorderCard({
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       variants={cardVariants}
-      /* no whileHover lift on iOS — avoids extra compositing layer */
-      whileHover={ios ? undefined : { y: -5, transition: { duration: 0.22, ease: "easeOut" } }}
+      whileHover={{ y: -5, transition: { duration: 0.22, ease: "easeOut" } }}
+      /* 1 px padding exposes the rotating gradient as the border */
       className="group relative rounded-2xl p-[1px] overflow-hidden"
     >
-      {/* Rotating conic sweep — desktop only; 3× infinite rotations crash iOS */}
-      {!ios && (
-        <motion.div
-          className="pointer-events-none absolute"
-          style={{
-            top: "-100%",
-            left: "-100%",
-            width: "300%",
-            height: "300%",
-            background:
-              "conic-gradient(from 0deg, transparent 82%, rgba(74,222,128,0.55) 89%, rgba(134,239,172,0.85) 92%, rgba(74,222,128,0.55) 95%, transparent 100%)",
-          }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-        />
-      )}
+      {/* Rotating conic sweep — centred over the card */}
+      <motion.div
+        className="pointer-events-none absolute"
+        style={{
+          top: "-100%",
+          left: "-100%",
+          width: "300%",
+          height: "300%",
+          background:
+            "conic-gradient(from 0deg, transparent 82%, rgba(74,222,128,0.55) 89%, rgba(134,239,172,0.85) 92%, rgba(74,222,128,0.55) 95%, transparent 100%)",
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+      />
 
-      {/* Static green border shown on iOS instead of the rotating sweep */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl border border-green-400/20" />
+      {/* Always-on dim base border so the card has definition at rest */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/[0.08]" />
 
-      {/* Card body — no backdrop-blur on iOS (GPU-intensive on older devices) */}
+      {/* Card body */}
       <div
-        className={`relative rounded-[15px] p-5 transition-colors duration-300 bg-[rgba(7,11,7,0.80)] group-hover:bg-[rgba(7,11,7,0.70)] ${ios ? '' : 'backdrop-blur-xl'}`}
+        className="relative rounded-[15px] p-5 backdrop-blur-xl
+                   transition-colors duration-300
+                   bg-[rgba(7,11,7,0.52)] group-hover:bg-[rgba(7,11,7,0.44)]"
         style={{
           boxShadow:
             "0 20px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.055)",
         }}
       >
-        {!ios && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-[15px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            style={{ boxShadow: "inset 0 0 40px rgba(74,222,128,0.055)" }}
-          />
-        )}
+        {/* Subtle inner glow on hover */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[15px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{ boxShadow: "inset 0 0 40px rgba(74,222,128,0.055)" }}
+        />
+
         {children}
       </div>
     </motion.div>
@@ -126,7 +123,6 @@ function AnimatedBorderCard({
 export function HowItWorks() {
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
-  const ios = useIsIOS();
 
   return (
     <section
@@ -194,7 +190,7 @@ export function HowItWorks() {
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <AnimatedBorderCard key={i} index={i} isInView={isInView} ios={ios}>
+              <AnimatedBorderCard key={i} index={i} isInView={isInView}>
                 {/* Icon */}
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-green-400/25 bg-green-400/10 text-green-300 transition-colors duration-300 group-hover:border-green-400/45 group-hover:bg-green-400/16">
                   <Icon className="h-5 w-5" />
