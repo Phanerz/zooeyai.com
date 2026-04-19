@@ -17,8 +17,12 @@ interface ScrollExpandMediaProps {
   scrollToExpand?: string;
   mediaOverlay?: ReactNode;
   presenceSrc?: string;
-  /** Slot rendered between the description pill and the scroll hint — animates out with the description on scroll */
-  downloadCta?: ReactNode;
+  /** Primary download button — slides right (alternates with description) */
+  downloadButton?: ReactNode;
+  /** Small platform / requirements line — slides left */
+  downloadSubtext?: ReactNode;
+  /** Version badge — slides right */
+  downloadBadge?: ReactNode;
   children?: ReactNode;
 }
 
@@ -43,7 +47,9 @@ const ScrollExpandMedia = ({
   titleLines,
   description,
   scrollToExpand,
-  downloadCta,
+  downloadButton,
+  downloadSubtext,
+  downloadBadge,
   children
 }: ScrollExpandMediaProps) => {
   const [showContent, setShowContent] = useState(false);
@@ -57,7 +63,9 @@ const ScrollExpandMedia = ({
   const h1Ref = useRef<HTMLHeadingElement | null>(null);
   const h2Ref = useRef<HTMLHeadingElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
-  const downloadCtaRef = useRef<HTMLDivElement | null>(null);
+  const downloadButtonRef  = useRef<HTMLDivElement | null>(null);
+  const downloadSubtextRef = useRef<HTMLDivElement | null>(null);
+  const downloadBadgeRef   = useRef<HTMLDivElement | null>(null);
   const scrollHintRef = useRef<HTMLParagraphElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
 
@@ -108,11 +116,18 @@ const ScrollExpandMedia = ({
     if (descRef.current) {
       descRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
     }
-    if (downloadCtaRef.current) {
-      downloadCtaRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
+    // Download CTA — each line alternates direction so they peel apart on scroll
+    if (downloadButtonRef.current) {
+      downloadButtonRef.current.style.transform = `translate3d(${titleOffset}vw, 0, 0)`;
+    }
+    if (downloadSubtextRef.current) {
+      downloadSubtextRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
+    }
+    if (downloadBadgeRef.current) {
+      downloadBadgeRef.current.style.transform = `translate3d(${titleOffset}vw, 0, 0)`;
     }
     if (scrollHintRef.current) {
-      scrollHintRef.current.style.transform = `translate3d(${titleOffset}vw, 0, 0)`;
+      scrollHintRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
     }
 
     // Header — use cached ref, never querySelector in the hot path
@@ -475,12 +490,19 @@ const ScrollExpandMedia = ({
                       {description}
                     </p>
                   ) : null}
-                  {downloadCta ? (
-                    <div
-                      ref={downloadCtaRef}
-                      style={{ willChange: 'transform' }}
-                    >
-                      {downloadCta}
+                  {downloadButton ? (
+                    <div ref={downloadButtonRef} style={{ willChange: 'transform' }}>
+                      {downloadButton}
+                    </div>
+                  ) : null}
+                  {downloadSubtext ? (
+                    <div ref={downloadSubtextRef} style={{ willChange: 'transform' }}>
+                      {downloadSubtext}
+                    </div>
+                  ) : null}
+                  {downloadBadge ? (
+                    <div ref={downloadBadgeRef} style={{ willChange: 'transform' }}>
+                      {downloadBadge}
                     </div>
                   ) : null}
                   {scrollToExpand ? (

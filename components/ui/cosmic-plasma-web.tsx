@@ -344,16 +344,11 @@ export function PlasmaWeb({
 
     const mesh = new Mesh(gl, { geometry, program });
     let animateId: number = 0;
-    let scrollPaused = false;
-
-    // True when both the tab is visible and the plasma is not scrolled off screen
-    const canRender = () => !document.hidden && !scrollPaused;
 
     // Prevent the tab/app from freezing if the browser kills the WebGL context
     function handleContextLost(e: Event) {
       e.preventDefault();
       cancelAnimationFrame(animateId);
-      animateId = 0;
     }
     gl.canvas.addEventListener('webglcontextlost', handleContextLost);
 
@@ -361,33 +356,16 @@ export function PlasmaWeb({
     function handleVisibilityChange() {
       if (document.hidden) {
         cancelAnimationFrame(animateId);
-        animateId = 0;
-      } else if (canRender()) {
+      } else {
         lastFrameTime = 0;
         animateId = requestAnimationFrame(update);
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Pause when the user has scrolled far enough that the fixed plasma is fully
-    // covered by page content — resume the moment they scroll back toward the top.
-    function handleScroll() {
-      const past = window.scrollY > window.innerHeight * 0.5;
-      if (past === scrollPaused) return;
-      scrollPaused = past;
-      if (past) {
-        cancelAnimationFrame(animateId);
-        animateId = 0;
-      } else if (canRender()) {
-        lastFrameTime = 0;
-        animateId = requestAnimationFrame(update);
-      }
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Cap at 60 fps — uncapped on high-refresh monitors (144 Hz+) runs 2-4× more
-    // fragment shader work than needed and causes sustained GPU heat.
-    const frameInterval = 1000 / 60;
+    // Mid-range devices run at 30 fps instead of 60 — halves fragment shader work
+    // without freezing or pausing the animation. High-end stays at 60 fps.
+    const frameInterval = isMidRange ? 1000 / 30 : 1000 / 60;
     let lastFrameTime = 0;
 
     function update(t: number) {
@@ -410,8 +388,6 @@ export function PlasmaWeb({
       renderer.render({ scene: mesh });
     }
     animateId = requestAnimationFrame(update);
-    // Run the scroll check immediately — handles pages that load scrolled down
-    handleScroll();
     ctn.appendChild(gl.canvas);
 
     // Position canvas absolutely so it overlays the gradient fallback div
@@ -447,7 +423,6 @@ export function PlasmaWeb({
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('scroll', handleScroll);
       if (mouseInteraction) {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseleave', handleMouseLeave);

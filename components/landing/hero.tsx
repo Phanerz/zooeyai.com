@@ -17,28 +17,28 @@ function WindowsLogo({ className }: { className?: string }) {
   );
 }
 
-function HeroDownloadCta() {
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <StarButton
-        href="#download-coming-soon"
-        variant="cyan"
-        className="px-8 py-3 text-[15px] font-bold tracking-wide"
-      >
-        <WindowsLogo className="mr-2.5 h-4 w-4 shrink-0" />
-        Download for Windows
-      </StarButton>
+const heroDownloadButton = (
+  <StarButton
+    href="#download-coming-soon"
+    variant="cyan"
+    className="px-8 py-3 text-[15px] font-bold tracking-wide"
+  >
+    <WindowsLogo className="mr-2.5 h-4 w-4 shrink-0" />
+    Download for Windows
+  </StarButton>
+);
 
-      <p className="text-[11px] uppercase tracking-[0.32em] text-white/38">
-        Windows 11 &middot; Free to start &middot; No setup required
-      </p>
+const heroDownloadSubtext = (
+  <p className="text-[11px] uppercase tracking-[0.32em] text-white/38">
+    Windows 11 &middot; Free to start &middot; No setup required
+  </p>
+);
 
-      <span className="rounded-full border border-cyan-400/20 bg-black/35 px-4 py-1.5 text-[10px] uppercase tracking-[0.35em] text-cyan-300/70 backdrop-blur-md">
-        v1.0.0 &middot; Early Access
-      </span>
-    </div>
-  );
-}
+const heroDownloadBadge = (
+  <span className="rounded-full border border-cyan-400/20 bg-black/35 px-4 py-1.5 text-[10px] uppercase tracking-[0.35em] text-cyan-300/70 backdrop-blur-md">
+    v1.0.0 &middot; Early Access
+  </span>
+);
 
 
 function DemoOverlay() {
@@ -105,7 +105,9 @@ export function Hero() {
         bgImageSrc="/zooey-backdrop.svg"
         titleLines={['Your AI assistant,', 'always on screen.']}
         description="Press a key. Zooey helps you write, fix, and solve, without leaving the window you are in."
-        downloadCta={<HeroDownloadCta />}
+        downloadButton={heroDownloadButton}
+        downloadSubtext={heroDownloadSubtext}
+        downloadBadge={heroDownloadBadge}
         scrollToExpand="Scroll to see Zooey in action"
         presenceSrc="/zooey-icon.png"
       >
