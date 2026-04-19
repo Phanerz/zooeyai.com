@@ -2,6 +2,43 @@
 
 import { CornerDownRight } from 'lucide-react';
 import ScrollExpandMedia from '@/components/blocks/scroll-expansion-hero';
+import { StarButton } from '@/components/ui/star-button';
+
+function WindowsLogo({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.949" />
+    </svg>
+  );
+}
+
+function HeroDownloadCta() {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <StarButton
+        href="#download-coming-soon"
+        variant="cyan"
+        className="px-8 py-3 text-[15px] font-bold tracking-wide"
+      >
+        <WindowsLogo className="mr-2.5 h-4 w-4 shrink-0" />
+        Download for Windows
+      </StarButton>
+
+      <p className="text-[11px] uppercase tracking-[0.32em] text-white/38">
+        Windows 11 &middot; Free to start &middot; No setup required
+      </p>
+
+      <span className="rounded-full border border-cyan-400/20 bg-black/35 px-4 py-1.5 text-[10px] uppercase tracking-[0.35em] text-cyan-300/70 backdrop-blur-md">
+        v1.0.0 &middot; Early Access
+      </span>
+    </div>
+  );
+}
 
 
 function DemoOverlay() {
@@ -68,6 +105,7 @@ export function Hero() {
         bgImageSrc="/zooey-backdrop.svg"
         titleLines={['Your AI assistant,', 'always on screen.']}
         description="Press a key. Zooey helps you write, fix, and solve, without leaving the window you are in."
+        downloadCta={<HeroDownloadCta />}
         scrollToExpand="Scroll to see Zooey in action"
         presenceSrc="/zooey-icon.png"
       >

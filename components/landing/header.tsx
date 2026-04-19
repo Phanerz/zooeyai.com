@@ -12,11 +12,12 @@ import { StarButton } from "@/components/ui/star-button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "Home",     href: "/",             hash: null },
-  { label: "Pricing",  href: "/pricing",      hash: null },
-  { label: "FAQs",     href: "/faqs",         hash: null },
-  { label: "About",    href: "/about",        hash: null },
-  { label: "Changelog",  href: "/updates",      hash: null },
+  { label: "Home",      href: "/",         hash: null },
+  { label: "Pricing",   href: "/pricing",  hash: null },
+  { label: "FAQs",      href: "/faqs",     hash: null },
+  { label: "Download",  href: "/download", hash: null },
+  { label: "About",     href: "/about",    hash: null },
+  { label: "Changelog", href: "/updates",  hash: null },
 ];
 
 export function Header() {

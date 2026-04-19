@@ -17,6 +17,8 @@ interface ScrollExpandMediaProps {
   scrollToExpand?: string;
   mediaOverlay?: ReactNode;
   presenceSrc?: string;
+  /** Slot rendered between the description pill and the scroll hint — animates out with the description on scroll */
+  downloadCta?: ReactNode;
   children?: ReactNode;
 }
 
@@ -41,6 +43,7 @@ const ScrollExpandMedia = ({
   titleLines,
   description,
   scrollToExpand,
+  downloadCta,
   children
 }: ScrollExpandMediaProps) => {
   const [showContent, setShowContent] = useState(false);
@@ -54,6 +57,7 @@ const ScrollExpandMedia = ({
   const h1Ref = useRef<HTMLHeadingElement | null>(null);
   const h2Ref = useRef<HTMLHeadingElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
+  const downloadCtaRef = useRef<HTMLDivElement | null>(null);
   const scrollHintRef = useRef<HTMLParagraphElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
 
@@ -103,6 +107,9 @@ const ScrollExpandMedia = ({
     }
     if (descRef.current) {
       descRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
+    }
+    if (downloadCtaRef.current) {
+      downloadCtaRef.current.style.transform = `translate3d(-${titleOffset}vw, 0, 0)`;
     }
     if (scrollHintRef.current) {
       scrollHintRef.current.style.transform = `translate3d(${titleOffset}vw, 0, 0)`;
@@ -467,6 +474,14 @@ const ScrollExpandMedia = ({
                     >
                       {description}
                     </p>
+                  ) : null}
+                  {downloadCta ? (
+                    <div
+                      ref={downloadCtaRef}
+                      style={{ willChange: 'transform' }}
+                    >
+                      {downloadCta}
+                    </div>
                   ) : null}
                   {scrollToExpand ? (
                     <p
