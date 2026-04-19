@@ -152,7 +152,7 @@ export function Header() {
           {/* CTA + hamburger */}
           <div className="flex items-center gap-3">
             <StarButton
-              href="/waitlist"
+              href="/download"
               variant="green"
               className="hidden text-[13px] font-bold tracking-wide px-5 py-[9px] sm:inline-flex"
             >
@@ -212,7 +212,7 @@ export function Header() {
 
               <div className="mt-3 border-t border-white/10 pt-3">
                 <StarButton
-                  href="/waitlist"
+                  href="/download"
                   variant="green"
                   className="w-full justify-center text-[13px] font-bold tracking-wide"
                 >

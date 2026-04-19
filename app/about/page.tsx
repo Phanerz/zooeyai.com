@@ -110,10 +110,10 @@ export default function AboutPage() {
               </p>
             </div>
             <Link
-              href="/waitlist"
+              href="/download"
               className="group mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-green-400 px-7 py-3 text-sm font-semibold text-black transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-[0_0_28px_rgba(74,222,128,0.38)]"
             >
-              Get early access
+              Download Zooey
               <svg
                 className="transition-transform duration-150 group-hover:translate-x-0.5"
                 width="13" height="12" viewBox="0 0 13 12" fill="none"

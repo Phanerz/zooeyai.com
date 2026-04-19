@@ -215,7 +215,7 @@ function PlanCard({ plan, isYearly }: { plan: Plan; isYearly: boolean }) {
 
       {/* CTA */}
       <a
-        href={`/waitlist?plan=${plan.id}`}
+        href="/download"
         className={cn(
           "relative mt-4 flex w-full items-center justify-center rounded-full py-[9px]",
           "text-[13px] font-bold tracking-wide transition-all duration-200 ring-0 hover:ring-2",

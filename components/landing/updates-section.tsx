@@ -15,7 +15,7 @@ const releases = [
     version: "v0.1.0-beta",
     title: "Zooey Arrives.",
     subtitle: "The beta is almost here.",
-    body: "Six modes, hotkey activation, and a desktop AI that stays out of your way until you need it. Deploying soon. Join the waitlist to be the first in.",
+    body: "Six modes, hotkey activation, and a desktop AI that stays out of your way until you need it. Download now and be among the first to use it.",
     tags: ["Beta", "Launch"],
   },
 ];
@@ -209,8 +209,8 @@ function ReleaseDialog({
 
           {/* CTA */}
           <div className="mt-8 flex items-center gap-3">
-            <StarButton href="/waitlist" variant="green" className="text-[13px] font-bold px-5 py-[9px]">
-              Join the waitlist
+            <StarButton href="/download" variant="green" className="text-[13px] font-bold px-5 py-[9px]">
+              Download Zooey
             </StarButton>
           </div>
         </div>
