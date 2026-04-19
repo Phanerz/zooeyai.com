@@ -131,20 +131,28 @@ export function ZooeyChatbot() {
         )}
       </AnimatePresence>
 
+      {/*
+        Float animation lives on the button (outermost layer) with will-change: transform
+        so the browser promotes it to its own GPU compositing layer. The drop-shadow filter
+        is on the Image inside a non-animating wrapper — this means the filter is baked into
+        the layer texture once and not recomputed on every float frame.
+      */}
       <button
         onClick={handleClick}
-        className="w-20 cursor-pointer md:w-32"
+        className="group w-20 cursor-pointer md:w-32 animate-float"
         aria-label="Chat with Zooey"
-        style={{ display: "block" }}
+        style={{ display: "block", willChange: "transform" }}
       >
-        <Image
-          src="/zooey-icon.png"
-          alt="Zooey"
-          width={144}
-          height={144}
-          priority
-          className="h-auto w-full animate-float object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)] transition-transform duration-150 hover:scale-105 active:scale-95"
-        />
+        <div className="transition-transform duration-150 group-hover:scale-105 group-active:scale-95">
+          <Image
+            src="/zooey-icon.png"
+            alt="Zooey"
+            width={144}
+            height={144}
+            priority
+            className="h-auto w-full object-contain drop-shadow-[0_0_22px_rgba(74,222,128,0.35)]"
+          />
+        </div>
       </button>
     </div>
   );

@@ -19,6 +19,7 @@ export function Marquee({ children, reverse = false, className = '', ...props }:
           className={`flex shrink-0 justify-around gap-[var(--gap)] ${
             reverse ? 'animate-marquee-reverse' : 'animate-marquee'
           }`}
+          style={{ willChange: 'transform' }}
         >
           {children}
         </div>

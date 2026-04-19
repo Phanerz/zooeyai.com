@@ -226,7 +226,7 @@ export function FaqSection() {
                 transition={{ delay: i * 0.08, duration: 0.55, ease: EASE }}
                 onMouseMove={setGlow}
                 onMouseLeave={clearGlow}
-                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[rgba(7,11,7,0.48)] backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5"
+                className="glass-dark group relative overflow-hidden rounded-2xl border border-white/10 bg-[rgba(7,11,7,0.48)] backdrop-blur-xl transition-transform duration-300 hover:-translate-y-0.5"
                 style={{
                   boxShadow:
                     "0 20px 60px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.05)",

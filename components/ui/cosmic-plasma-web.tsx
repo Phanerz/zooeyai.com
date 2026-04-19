@@ -260,6 +260,20 @@ export function PlasmaWeb({
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if (isIOS) return;
 
+    // Device quality tier — governs shader complexity and DPR cap.
+    // hardwareConcurrency is a coarse proxy for GPU capability but far better than nothing.
+    const cores = navigator.hardwareConcurrency ?? 4;
+    const isLowEnd  = cores < 4;
+    const isMidRange = cores >= 4 && cores < 8;
+
+    // Low-end devices skip WebGL entirely — the CSS gradient fallback is already rendered.
+    if (isLowEnd) return;
+
+    const qualityDPR     = isMidRange ? 1.0 : 1.5;
+    const qualityDensity = isMidRange ? density * 0.65  : density;
+    const qualityEnergy  = isMidRange ? energyFlow * 0.7 : energyFlow;
+    const qualityPulse   = isMidRange ? pulseIntensity * 0.5 : pulseIntensity;
+
     // Guard against browsers where WebGL is unavailable
     let renderer: InstanceType<typeof Renderer>;
     try {
@@ -272,9 +286,9 @@ export function PlasmaWeb({
       return; // CSS gradient fallback remains visible
     }
 
-    // Cap DPR to 1.5 — at DPR 2 a 1080p monitor shades 4× more fragments than at DPR 1.
-    // 1.5 keeps the effect sharp while cutting fragment work by ~44% vs DPR 2.
-    renderer.dpr = Math.min(window.devicePixelRatio, 1.5);
+    // Cap DPR based on quality tier — at DPR 2 a 1080p monitor shades 4× more fragments
+    // than at DPR 1. Mid-range devices are capped at 1.0 to cut fragment work by ~56%.
+    renderer.dpr = Math.min(window.devicePixelRatio, qualityDPR);
 
     const gl = renderer.gl;
 
@@ -290,7 +304,7 @@ export function PlasmaWeb({
 
     function resize() {
       renderer.setSize(ctn.offsetWidth, ctn.offsetHeight);
-      renderer.dpr = Math.min(window.devicePixelRatio, 1.5);
+      renderer.dpr = Math.min(window.devicePixelRatio, qualityDPR);
       if (program) {
         program.uniforms.uResolution.value = new Color(
           gl.canvas.width,
@@ -311,18 +325,18 @@ export function PlasmaWeb({
         uResolution:        { value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height) },
         uFocal:             { value: new Float32Array(focal) },
         uFlowSpeed:         { value: flowSpeed },
-        uDensity:           { value: density },
+        uDensity:           { value: qualityDensity },
         uHueShift:          { value: hueShift },
         uSpeed:             { value: speed },
         uMouse:             { value: new Float32Array([smoothMousePos.current.x, smoothMousePos.current.y]) },
         uGlowIntensity:     { value: glowIntensity },
         uSaturation:        { value: saturation },
         uMouseAttraction:   { value: mouseAttraction },
-        uPulseIntensity:    { value: pulseIntensity },
+        uPulseIntensity:    { value: qualityPulse },
         uWebComplexity:     { value: webComplexity },
         uAttractionStrength:{ value: attractionStrength },
         uMouseActiveFactor: { value: 0.0 },
-        uEnergyFlow:        { value: energyFlow },
+        uEnergyFlow:        { value: qualityEnergy },
         uTransparent:       { value: transparent },
         uBrightness:        { value: brightness },
       },
@@ -330,11 +344,16 @@ export function PlasmaWeb({
 
     const mesh = new Mesh(gl, { geometry, program });
     let animateId: number = 0;
+    let scrollPaused = false;
+
+    // True when both the tab is visible and the plasma is not scrolled off screen
+    const canRender = () => !document.hidden && !scrollPaused;
 
     // Prevent the tab/app from freezing if the browser kills the WebGL context
     function handleContextLost(e: Event) {
       e.preventDefault();
       cancelAnimationFrame(animateId);
+      animateId = 0;
     }
     gl.canvas.addEventListener('webglcontextlost', handleContextLost);
 
@@ -342,12 +361,29 @@ export function PlasmaWeb({
     function handleVisibilityChange() {
       if (document.hidden) {
         cancelAnimationFrame(animateId);
-      } else {
+        animateId = 0;
+      } else if (canRender()) {
         lastFrameTime = 0;
         animateId = requestAnimationFrame(update);
       }
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Pause when the user has scrolled far enough that the fixed plasma is fully
+    // covered by page content — resume the moment they scroll back toward the top.
+    function handleScroll() {
+      const past = window.scrollY > window.innerHeight * 0.5;
+      if (past === scrollPaused) return;
+      scrollPaused = past;
+      if (past) {
+        cancelAnimationFrame(animateId);
+        animateId = 0;
+      } else if (canRender()) {
+        lastFrameTime = 0;
+        animateId = requestAnimationFrame(update);
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Cap at 60 fps — uncapped on high-refresh monitors (144 Hz+) runs 2-4× more
     // fragment shader work than needed and causes sustained GPU heat.
@@ -374,6 +410,8 @@ export function PlasmaWeb({
       renderer.render({ scene: mesh });
     }
     animateId = requestAnimationFrame(update);
+    // Run the scroll check immediately — handles pages that load scrolled down
+    handleScroll();
     ctn.appendChild(gl.canvas);
 
     // Position canvas absolutely so it overlays the gradient fallback div
@@ -409,6 +447,7 @@ export function PlasmaWeb({
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', handleScroll);
       if (mouseInteraction) {
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseleave', handleMouseLeave);

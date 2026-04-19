@@ -53,7 +53,7 @@ textarea {
 }
 
 .panel-surface {
-  @apply rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-xl;
+  @apply rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-md;
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -79,9 +79,52 @@ textarea {
   mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
 }
 
+/* Rotating card border — GPU-composited CSS animation, cheaper than Framer Motion for
+   continuous infinite rotation. Paused on touch devices to save CPU/GPU. */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 5s linear infinite;
+  will-change: transform;
+}
+
+/* Glass surface — blurred panels that fall back to opaque on touch devices.
+   backdrop-blur is expensive on iOS and mid-range Android; solid dark bg looks
+   virtually identical against the near-black background. */
+.glass-dark {
+  /* no-op on desktop — components apply their own backdrop-blur */
+}
+
 @keyframes node-hover-float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-6px); }
+}
+
+/* ── Touch / mobile performance overrides ──────────────────────────────────────
+   On coarse-pointer devices (phones, tablets) we strip backdrop-filter blurs from
+   cards and panels. The effect is near-invisible against the dark background and
+   saving the compositor the work of maintaining blur surfaces makes scroll and
+   animation visibly smoother, especially on iOS Safari and mid-range Android.
+   The site header keeps its blur — it needs legibility against variable content. */
+@media (pointer: coarse) {
+  .panel-surface {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(9, 11, 16, 0.93);
+  }
+
+  /* FAQ accordion items and how-it-works card bodies */
+  .glass-dark {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(9, 11, 16, 0.90) !important;
+  }
+
+  /* Rotating card border — stop spinning on touch devices to save GPU cycles */
+  .animate-spin-slow {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

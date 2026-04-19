@@ -79,9 +79,9 @@ function AnimatedBorderCard({
       /* 1 px padding exposes the rotating gradient as the border */
       className="group relative rounded-2xl p-[1px] overflow-hidden"
     >
-      {/* Rotating conic sweep — centred over the card */}
-      <motion.div
-        className="pointer-events-none absolute"
+      {/* Rotating conic sweep — CSS animation keeps this off the Framer Motion JS thread */}
+      <div
+        className="pointer-events-none absolute animate-spin-slow"
         style={{
           top: "-100%",
           left: "-100%",
@@ -90,8 +90,6 @@ function AnimatedBorderCard({
           background:
             "conic-gradient(from 0deg, transparent 82%, rgba(74,222,128,0.55) 89%, rgba(134,239,172,0.85) 92%, rgba(74,222,128,0.55) 95%, transparent 100%)",
         }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
       />
 
       {/* Always-on dim base border so the card has definition at rest */}
@@ -99,7 +97,7 @@ function AnimatedBorderCard({
 
       {/* Card body */}
       <div
-        className="relative rounded-[15px] p-5 backdrop-blur-xl
+        className="glass-dark relative rounded-[15px] p-5 backdrop-blur-xl
                    transition-colors duration-300
                    bg-[rgba(7,11,7,0.52)] group-hover:bg-[rgba(7,11,7,0.44)]"
         style={{
