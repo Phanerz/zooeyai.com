@@ -351,8 +351,8 @@ export function UpdatesSection() {
                       {/* Actions row */}
                       <div className="flex items-center justify-between">
                         {/* CTA */}
-                        <StarButton href="/waitlist" variant="green" className="text-[13px] font-bold px-5 py-[9px]">
-                          Join the waitlist
+                        <StarButton href="/download" variant="green" className="text-[13px] font-bold px-5 py-[9px]">
+                          Download Zooey
                         </StarButton>
 
                         {/* Icon actions */}

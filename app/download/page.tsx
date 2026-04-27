@@ -45,16 +45,28 @@ const clearGlow = (e: React.MouseEvent<HTMLLIElement>) => {
   e.currentTarget.style.removeProperty("--gy");
 };
 
+/* ─── Star particle (same shape as StarButton) ───────────────────────────────── */
+const StarShape = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 784.11 815.53"
+    className={className ?? "w-full h-auto"}
+    aria-hidden="true"
+  >
+    <path d="M392.05 0c-20.9,210.08-184.06,378.41-392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93-210.06 184.09-378.37 392.05-407.74-207.98-29.38-371.16-197.69-392.06-407.78z" />
+  </svg>
+);
+
 /* ─── SVG logos ──────────────────────────────────────────────────────────────── */
 function AppleLogo({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 814 1000"
+      viewBox="0 0 24 24"
       fill="currentColor"
       className={className}
       aria-hidden="true"
     >
-      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-167.2-118.3C20.7 782 0 637.1 0 503.6 0 281.2 144.9 163.3 287.5 163.3c74.9 0 137.2 49.1 184.6 49.1 45.5 0 117.7-52.4 201.9-52.4 32.3 0 108.2 2.6 168.3 62.9zm-41.1-178.9c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z" />
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
     </svg>
   );
 }
@@ -72,6 +84,29 @@ function WindowsLogo({ className }: { className?: string }) {
   );
 }
 
+/* ─── Star particles per platform ────────────────────────────────────────────── */
+const RedStars = () => (
+  <>
+    <div className="absolute top-[20%] left-[20%] w-[20px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0.05,0.83,0.43,0.96)] drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[-80%] group-hover:left-[-30%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+    <div className="absolute top-[45%] left-[45%] w-[12px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[-25%] group-hover:left-[10%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+    <div className="absolute top-[40%] left-[40%] w-[5px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[55%] group-hover:left-[25%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+    <div className="absolute top-[20%] left-[40%] w-[8px] z-[-5] transition-all duration-[800ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[30%] group-hover:left-[80%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+    <div className="absolute top-[25%] left-[45%] w-[12px] z-[-5] transition-all duration-[600ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[25%] group-hover:left-[115%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+    <div className="absolute top-[5%] left-[50%] w-[5px] z-[-5] transition-all duration-[800ms] ease-in-out drop-shadow-[0_0_0_rgba(239,68,68,0)] group-hover:top-[5%] group-hover:left-[60%] group-hover:drop-shadow-[0_0_10px_rgba(239,68,68,0.9)] group-hover:z-[2]"><StarShape className="fill-[#ef4444]" /></div>
+  </>
+);
+
+const BlueStars = () => (
+  <>
+    <div className="absolute top-[20%] left-[20%] w-[20px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0.05,0.83,0.43,0.96)] drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[-80%] group-hover:left-[-30%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+    <div className="absolute top-[45%] left-[45%] w-[12px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[-25%] group-hover:left-[10%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+    <div className="absolute top-[40%] left-[40%] w-[5px] z-[-5] transition-all duration-[1000ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[55%] group-hover:left-[25%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+    <div className="absolute top-[20%] left-[40%] w-[8px] z-[-5] transition-all duration-[800ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[30%] group-hover:left-[80%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+    <div className="absolute top-[25%] left-[45%] w-[12px] z-[-5] transition-all duration-[600ms] ease-[cubic-bezier(0,0.4,0,1.01)] drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[25%] group-hover:left-[115%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+    <div className="absolute top-[5%] left-[50%] w-[5px] z-[-5] transition-all duration-[800ms] ease-in-out drop-shadow-[0_0_0_rgba(59,130,246,0)] group-hover:top-[5%] group-hover:left-[60%] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.9)] group-hover:z-[2]"><StarShape className="fill-[#3b82f6]" /></div>
+  </>
+);
+
 /* ─── Platform download buttons ──────────────────────────────────────────────── */
 function PlatformButtons() {
   const [activeGlow, setActiveGlow] = useState<"mac" | "win">("mac");
@@ -87,42 +122,62 @@ function PlatformButtons() {
   const winActive = activeGlow === "win";
 
   return (
-    <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center">
+    <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
       {/* Mac button */}
-      <a
-        href="#mac-download"
-        className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border-2 border-red-500 px-9 py-3.5 text-[15px] font-bold tracking-wide transition-all duration-500 hover:bg-transparent hover:text-red-400"
-        style={{
-          background: macActive ? "rgba(239,68,68,0.92)" : "rgba(239,68,68,0.10)",
-          color: macActive ? "#0a0a0a" : "rgba(239,68,68,0.85)",
-          boxShadow: macActive
-            ? "0 0 28px rgba(239,68,68,0.60), 0 0 56px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.15)"
-            : "0 0 0px rgba(239,68,68,0)",
-          transition:
-            "box-shadow 0.6s ease, background 0.6s ease, color 0.6s ease",
-        }}
-      >
-        <AppleLogo className="h-[17px] w-[17px] shrink-0" />
-        Download for Mac
-      </a>
+      <div className="relative">
+        {/* Ambient halo — brightens when sequentially active */}
+        <div
+          className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
+          style={{
+            background: "rgba(239,68,68,0.55)",
+            opacity: macActive ? 1 : 0.18,
+          }}
+        />
+        <a
+          href="#mac-download"
+          className="group relative inline-flex items-center gap-3 overflow-visible rounded-full border-2 border-red-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
+          style={{
+            background: macActive ? "rgba(239,68,68,0.92)" : "rgba(239,68,68,0.08)",
+            color: macActive ? "#0a0a0a" : "rgba(255,120,120,0.90)",
+            boxShadow: macActive
+              ? "0 0 36px rgba(239,68,68,0.80), 0 0 72px rgba(239,68,68,0.40), 0 0 120px rgba(239,68,68,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
+              : "0 0 8px rgba(239,68,68,0.20)",
+            transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
+          }}
+        >
+          <AppleLogo className="h-[18px] w-[18px] shrink-0" />
+          Download for Mac
+          <RedStars />
+        </a>
+      </div>
 
       {/* Windows button */}
-      <a
-        href="#win-download"
-        className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border-2 border-blue-500 px-9 py-3.5 text-[15px] font-bold tracking-wide transition-all duration-500 hover:bg-transparent hover:text-blue-400"
-        style={{
-          background: winActive ? "rgba(59,130,246,0.92)" : "rgba(59,130,246,0.10)",
-          color: winActive ? "#0a0a0a" : "rgba(99,160,255,0.85)",
-          boxShadow: winActive
-            ? "0 0 28px rgba(59,130,246,0.60), 0 0 56px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.15)"
-            : "0 0 0px rgba(59,130,246,0)",
-          transition:
-            "box-shadow 0.6s ease, background 0.6s ease, color 0.6s ease",
-        }}
-      >
-        <WindowsLogo className="h-[15px] w-[15px] shrink-0" />
-        Download for Windows
-      </a>
+      <div className="relative">
+        {/* Ambient halo */}
+        <div
+          className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
+          style={{
+            background: "rgba(59,130,246,0.55)",
+            opacity: winActive ? 1 : 0.18,
+          }}
+        />
+        <a
+          href="#win-download"
+          className="group relative inline-flex items-center gap-3 overflow-visible rounded-full border-2 border-blue-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
+          style={{
+            background: winActive ? "rgba(59,130,246,0.92)" : "rgba(59,130,246,0.08)",
+            color: winActive ? "#0a0a0a" : "rgba(120,160,255,0.90)",
+            boxShadow: winActive
+              ? "0 0 36px rgba(59,130,246,0.80), 0 0 72px rgba(59,130,246,0.40), 0 0 120px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
+              : "0 0 8px rgba(59,130,246,0.20)",
+            transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
+          }}
+        >
+          <WindowsLogo className="h-[15px] w-[15px] shrink-0" />
+          Download for Windows
+          <BlueStars />
+        </a>
+      </div>
     </div>
   );
 }

@@ -5,14 +5,21 @@ import ScrollExpandMedia from '@/components/blocks/scroll-expansion-hero';
 import { StarButton } from '@/components/ui/star-button';
 
 const heroDownloadButton = (
-  <StarButton
-    href="#download-coming-soon"
-    variant="cyan"
-    className="px-8 py-3 text-[15px] font-bold tracking-wide"
-  >
-    <Download className="mr-2.5 h-4 w-4 shrink-0" />
-    Download Now!
-  </StarButton>
+  <div className="relative">
+    {/* Ambient glow halo — always on, not just hover */}
+    <div
+      className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl"
+      style={{ background: "rgba(34,211,238,0.38)" }}
+    />
+    <StarButton
+      href="/download"
+      variant="cyan"
+      className="px-8 py-3 text-[15px] font-bold tracking-wide shadow-[0_0_28px_rgba(34,211,238,0.55)] hover:shadow-[0_0_48px_rgba(34,211,238,0.85)]"
+    >
+      <Download className="mr-2.5 h-4 w-4 shrink-0" />
+      Download Now!
+    </StarButton>
+  </div>
 );
 
 
