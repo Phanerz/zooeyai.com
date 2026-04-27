@@ -91,14 +91,14 @@ export default function AboutPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-green-300/60">
               About
             </p>
-            <h1 className="mt-3 text-2xl font-semibold leading-snug text-white/90 md:text-3xl">
+            <h1 className="mt-3 text-2xl font-bold leading-snug text-white md:text-3xl">
               One person.<br />One obsession.
             </h1>
             <div
               className="mt-3 h-[3px] w-24 rounded-full"
-              style={{ background: "linear-gradient(90deg, rgba(74,222,128,0.9), rgba(74,222,128,0.12))" }}
+              style={{ background: "linear-gradient(90deg, rgba(74,222,128,1.0), rgba(74,222,128,0.12))" }}
             />
-            <div className="mt-7 space-y-4 text-sm leading-7 text-white/50">
+            <div className="mt-7 space-y-4 text-sm leading-[1.85] text-white/68">
               <p>
                 Zooey was built out of frustration with context switching. Every tool pulled you away from
                 what you were doing, a browser tab, a separate window, a different app entirely. The thread
@@ -143,14 +143,16 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.5, delay: i * 0.07, ease: EASE }}
-                className="group"
+                className="group rounded-2xl border border-transparent p-4 transition-all duration-300 hover:border-green-400/12 hover:bg-white/[0.025]"
+                style={{ transition: "border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease" }}
+                whileHover={{ y: -2 }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-green-400/20 bg-green-400/10 text-lg transition-colors duration-200 group-hover:border-green-400/35 group-hover:bg-green-400/15">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-green-400/20 bg-green-400/10 text-lg transition-colors duration-200 group-hover:border-green-400/40 group-hover:bg-green-400/18 group-hover:shadow-[0_0_14px_rgba(74,222,128,0.20)]">
                   {feat.icon}
                 </div>
                 <div className="mt-5 space-y-2">
-                  <h3 className="text-base font-medium text-white/85">{feat.title}</h3>
-                  <p className="text-sm leading-6 text-white/45">{feat.desc}</p>
+                  <h3 className="text-base font-semibold text-white/92">{feat.title}</h3>
+                  <p className="text-sm leading-relaxed text-white/62">{feat.desc}</p>
                 </div>
               </motion.div>
             ))}

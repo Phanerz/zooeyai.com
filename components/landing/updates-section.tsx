@@ -261,7 +261,7 @@ export function UpdatesSection() {
           >
             What is new<br />with Zooey.
           </h1>
-          <p className="mt-1 max-w-lg text-base text-white/55">
+          <p className="mt-1 max-w-lg text-base leading-relaxed text-white/68">
             Every update, version bump, and shipped feature. All in one place.
           </p>
         </motion.div>
@@ -334,7 +334,7 @@ export function UpdatesSection() {
                       <h2 className="mb-1 font-display text-2xl font-semibold text-white md:text-3xl">
                         {release.title}
                       </h2>
-                      <p className="mb-4 text-base font-medium text-white/55">
+                      <p className="mb-4 text-base font-medium text-white/70">
                         {release.subtitle}
                       </p>
 

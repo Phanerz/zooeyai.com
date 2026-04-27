@@ -15,7 +15,7 @@ export default function FeaturesPage() {
           >
             Built different.<br />On purpose.
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-white/55">
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/70">
             Full feature breakdown incoming. The blueprint is being assembled.
           </p>
 
@@ -23,7 +23,7 @@ export default function FeaturesPage() {
             {["Hotkey Launcher", "6 Smart Modes", "Screen Awareness"].map((f) => (
               <div
                 key={f}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-5 backdrop-blur-xl text-white/60 text-sm"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-5 backdrop-blur-xl text-white/75 text-sm font-medium transition-all duration-300 hover:border-green-400/20 hover:bg-white/[0.06] hover:shadow-[0_0_20px_rgba(74,222,128,0.10)]"
               >
                 {f}
               </div>

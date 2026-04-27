@@ -101,6 +101,16 @@ textarea {
   50% { transform: translateY(-6px); }
 }
 
+/* Subtle ambient glow pulse — used for hero accent elements */
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.85; }
+}
+.animate-glow-breathe {
+  animation: glow-breathe 3.5s ease-in-out infinite;
+}
+
+
 /* ── Touch / mobile performance overrides ──────────────────────────────────────
    On coarse-pointer devices (phones, tablets) we strip backdrop-filter blurs from
    cards and panels. The effect is near-invisible against the dark background and

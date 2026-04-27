@@ -177,7 +177,7 @@ export function Features() {
                       <p className="font-display text-lg font-semibold tracking-tight text-white">
                         {feature.title}
                       </p>
-                      <p className="mt-1 text-sm text-white/55">{feature.eyebrow}</p>
+                      <p className="mt-1 text-sm text-white/68">{feature.eyebrow}</p>
                     </div>
                   </button>
                 );

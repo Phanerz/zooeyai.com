@@ -25,7 +25,7 @@ const faqs = [
     category: "COMPATIBILITY",
     question: "Which devices does Zooey support?",
     answer:
-      "Zooey is built for Windows 11 right now. Support for Mac and Linux is actively in development. If you are waiting on either, it is worth keeping an eye on our Changelog page.",
+      "Zooey runs on Windows 10, Windows 11, and macOS 11 Big Sur and later. If you are on Linux, that support is actively in the works — keep an eye on the Changelog.",
   },
   {
     category: "PRICING",

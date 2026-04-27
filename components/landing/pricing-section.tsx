@@ -200,7 +200,7 @@ function PlanCard({ plan, isYearly }: { plan: Plan; isYearly: boolean }) {
 
       {/* Name + desc */}
       <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-      <p className="mt-1 text-[13px] text-white/45">{plan.description}</p>
+      <p className="mt-1 text-[13px] text-white/60">{plan.description}</p>
 
       {/* Price */}
       <div className="mt-4 flex items-end gap-1">
@@ -210,7 +210,7 @@ function PlanCard({ plan, isYearly }: { plan: Plan; isYearly: boolean }) {
         >
           {price}
         </span>
-        <span className="mb-1 text-sm text-white/40">{period}</span>
+        <span className="mb-1 text-sm text-white/55">{period}</span>
       </div>
 
       {/* CTA */}
@@ -222,7 +222,7 @@ function PlanCard({ plan, isYearly }: { plan: Plan; isYearly: boolean }) {
           plan.accent.btnBg, plan.accent.btnText, plan.accent.btnHover,
         )}
       >
-        Join Waitlist
+        Download Zooey
       </a>
 
       {/* Divider */}
@@ -268,7 +268,7 @@ function PlanCard({ plan, isYearly }: { plan: Plan; isYearly: boolean }) {
             )}
             <span className={cn(
               "text-[13.5px] leading-snug",
-              f.included ? "text-white/65" : "text-white/20 line-through",
+              f.included ? "text-white/75" : "text-white/22 line-through",
             )}>
               {f.label}
             </span>
