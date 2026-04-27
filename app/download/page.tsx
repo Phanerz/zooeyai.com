@@ -1,25 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { useState } from "react";
 import { StarButton } from "@/components/ui/star-button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-/* ─── Windows logo ───────────────────────────────────────────────────────────── */
-function WindowsLogo({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.949" />
-    </svg>
-  );
-}
 
 /* ─── FAQ data ───────────────────────────────────────────────────────────────── */
 const faqs = [
@@ -73,8 +59,8 @@ function DownloadButton({ size = "default" }: { size?: "default" | "large" }) {
           : "px-8 py-3 text-[15px] font-bold tracking-wide"
       }
     >
-      <WindowsLogo className="mr-2.5 h-4 w-4 shrink-0" />
-      Download for Windows
+      <Download className="mr-2.5 h-4 w-4 shrink-0" />
+      Download Now!
     </StarButton>
   );
 }
@@ -96,10 +82,10 @@ export default function DownloadPage() {
             transition={{ duration: 0.65, ease: EASE }}
             className="flex flex-col items-center gap-8 text-center"
           >
-            {/* Platform pill */}
+            {/* Early access pill */}
             <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/[0.06] px-4 py-2 text-[10px] uppercase tracking-[0.38em] text-cyan-300/80">
-              <WindowsLogo className="h-3 w-3" />
-              Windows 11
+              <Download className="h-3 w-3" />
+              Early Access
             </span>
 
             <div className="space-y-4">
