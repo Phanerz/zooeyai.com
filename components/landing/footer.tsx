@@ -254,10 +254,10 @@ export function Footer() {
             © 2026 Zooey. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="#" className="text-xs text-white/30 transition hover:text-white/60">
+            <Link href="/terms" className="text-xs text-white/30 transition hover:text-white/60">
               Terms of Service
             </Link>
-            <Link href="#" className="text-xs text-white/30 transition hover:text-white/60">
+            <Link href="/privacy" className="text-xs text-white/30 transition hover:text-white/60">
               Privacy Policy
             </Link>
           </div>
