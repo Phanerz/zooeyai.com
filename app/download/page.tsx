@@ -107,77 +107,128 @@ const BlueStars = () => (
   </>
 );
 
+/* ─── Download URLs ───────────────────────────────────────────────────────────── */
+const WIN_URL =
+  "https://github.com/Phanerz/zooey-download/releases/download/Zooey-1.0.0-beta/Zooey-1.0.0-beta-setup-x64.exe";
+const MAC_ARM_URL =
+  "https://github.com/Phanerz/zooey-download/releases/download/Zooey-1.0.0-beta/Zooey-1.0.0-beta-arm64-mac.zip";
+const MAC_INTEL_URL =
+  "https://github.com/Phanerz/zooey-download/releases/download/Zooey-1.0.0-beta/Zooey-1.0.0-beta-mac.zip";
+
 /* ─── Platform download buttons ──────────────────────────────────────────────── */
 function PlatformButtons() {
-  const [activeGlow, setActiveGlow] = useState<"mac" | "win">("mac");
+  const [activeGlow, setActiveGlow] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveGlow((prev) => (prev === "mac" ? "win" : "mac"));
-    }, 2400);
+    const timer = setInterval(() => setActiveGlow((prev) => (prev + 1) % 3), 2400);
     return () => clearInterval(timer);
   }, []);
 
-  const macActive = activeGlow === "mac";
-  const winActive = activeGlow === "win";
+  const macNote =
+    "Download as ZIP. Unzip and drag Zooey to Applications. If Mac blocks it, go to System Preferences, Security and Privacy, then Open Anyway.";
 
   return (
-    <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
-      {/* Mac button */}
-      <div className="relative">
-        {/* Ambient halo — brightens when sequentially active */}
-        <div
-          className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
-          style={{
-            background: "rgba(239,68,68,0.55)",
-            opacity: macActive ? 1 : 0.18,
-          }}
-        />
-        <a
-          href="#mac-download"
-          className="group relative inline-flex items-center gap-3 overflow-visible rounded-full border-2 border-red-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
-          style={{
-            background: macActive ? "rgba(239,68,68,0.92)" : "rgba(239,68,68,0.08)",
-            color: macActive ? "#0a0a0a" : "rgba(255,120,120,0.90)",
-            boxShadow: macActive
-              ? "0 0 36px rgba(239,68,68,0.80), 0 0 72px rgba(239,68,68,0.40), 0 0 120px rgba(239,68,68,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
-              : "0 0 8px rgba(239,68,68,0.20)",
-            transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
-          }}
-        >
-          <AppleLogo className="h-[18px] w-[18px] shrink-0" />
-          Download for Mac
-          <RedStars />
-        </a>
+    <div className="flex w-full max-w-sm flex-col items-stretch gap-5">
+
+      {/* Windows */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative w-full">
+          <div
+            className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
+            style={{ background: "rgba(59,130,246,0.55)", opacity: activeGlow === 0 ? 1 : 0.18 }}
+          />
+          <a
+            href={WIN_URL}
+            download
+            className="group relative flex w-full items-center justify-center gap-3 overflow-visible rounded-full border-2 border-blue-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
+            style={{
+              background: activeGlow === 0 ? "rgba(59,130,246,0.92)" : "rgba(59,130,246,0.08)",
+              color: activeGlow === 0 ? "#0a0a0a" : "rgba(120,160,255,0.90)",
+              boxShadow:
+                activeGlow === 0
+                  ? "0 0 36px rgba(59,130,246,0.80), 0 0 72px rgba(59,130,246,0.40), 0 0 120px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
+                  : "0 0 8px rgba(59,130,246,0.20)",
+              transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
+            }}
+          >
+            <WindowsLogo className="h-[15px] w-[15px] shrink-0" />
+            Download for Windows
+            <BlueStars />
+          </a>
+        </div>
+        <p className="text-center text-[11px] leading-relaxed text-white/40">
+          If Windows shows a security warning, click{" "}
+          <span className="text-white/60">More info</span> then{" "}
+          <span className="text-white/60">Run anyway</span>. This warning disappears once we have
+          code signing in place.
+        </p>
       </div>
 
-      {/* Windows button */}
-      <div className="relative">
-        {/* Ambient halo */}
-        <div
-          className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
-          style={{
-            background: "rgba(59,130,246,0.55)",
-            opacity: winActive ? 1 : 0.18,
-          }}
-        />
-        <a
-          href="#win-download"
-          className="group relative inline-flex items-center gap-3 overflow-visible rounded-full border-2 border-blue-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
-          style={{
-            background: winActive ? "rgba(59,130,246,0.92)" : "rgba(59,130,246,0.08)",
-            color: winActive ? "#0a0a0a" : "rgba(120,160,255,0.90)",
-            boxShadow: winActive
-              ? "0 0 36px rgba(59,130,246,0.80), 0 0 72px rgba(59,130,246,0.40), 0 0 120px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
-              : "0 0 8px rgba(59,130,246,0.20)",
-            transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
-          }}
-        >
-          <WindowsLogo className="h-[15px] w-[15px] shrink-0" />
-          Download for Windows
-          <BlueStars />
-        </a>
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-white/[0.07]" />
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">macOS</span>
+        <div className="h-px flex-1 bg-white/[0.07]" />
       </div>
+
+      {/* Mac M1 / M2 / M3 */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative w-full">
+          <div
+            className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
+            style={{ background: "rgba(239,68,68,0.55)", opacity: activeGlow === 1 ? 1 : 0.18 }}
+          />
+          <a
+            href={MAC_ARM_URL}
+            download
+            className="group relative flex w-full items-center justify-center gap-3 overflow-visible rounded-full border-2 border-red-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
+            style={{
+              background: activeGlow === 1 ? "rgba(239,68,68,0.92)" : "rgba(239,68,68,0.08)",
+              color: activeGlow === 1 ? "#0a0a0a" : "rgba(255,120,120,0.90)",
+              boxShadow:
+                activeGlow === 1
+                  ? "0 0 36px rgba(239,68,68,0.80), 0 0 72px rgba(239,68,68,0.40), 0 0 120px rgba(239,68,68,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
+                  : "0 0 8px rgba(239,68,68,0.20)",
+              transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
+            }}
+          >
+            <AppleLogo className="h-[18px] w-[18px] shrink-0" />
+            Download for Mac (M1 / M2 / M3)
+            <RedStars />
+          </a>
+        </div>
+        <p className="text-center text-[11px] leading-relaxed text-white/40">{macNote}</p>
+      </div>
+
+      {/* Mac Intel */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative w-full">
+          <div
+            className="pointer-events-none absolute -inset-3 -z-10 rounded-full blur-2xl transition-opacity duration-700"
+            style={{ background: "rgba(239,68,68,0.55)", opacity: activeGlow === 2 ? 1 : 0.18 }}
+          />
+          <a
+            href={MAC_INTEL_URL}
+            download
+            className="group relative flex w-full items-center justify-center gap-3 overflow-visible rounded-full border-2 border-red-500 px-9 py-3.5 text-[15px] font-bold tracking-wide active:scale-95"
+            style={{
+              background: activeGlow === 2 ? "rgba(239,68,68,0.92)" : "rgba(239,68,68,0.08)",
+              color: activeGlow === 2 ? "#0a0a0a" : "rgba(255,120,120,0.90)",
+              boxShadow:
+                activeGlow === 2
+                  ? "0 0 36px rgba(239,68,68,0.80), 0 0 72px rgba(239,68,68,0.40), 0 0 120px rgba(239,68,68,0.18), inset 0 1px 0 rgba(255,255,255,0.18)"
+                  : "0 0 8px rgba(239,68,68,0.20)",
+              transition: "box-shadow 0.65s ease, background 0.65s ease, color 0.65s ease",
+            }}
+          >
+            <AppleLogo className="h-[18px] w-[18px] shrink-0" />
+            Download for Mac (Intel)
+            <RedStars />
+          </a>
+        </div>
+        <p className="text-center text-[11px] leading-relaxed text-white/40">{macNote}</p>
+      </div>
+
     </div>
   );
 }
@@ -250,13 +301,10 @@ export default function DownloadPage() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex w-full flex-col items-center gap-6">
               <PlatformButtons />
-              <p className="text-[11px] uppercase tracking-[0.32em] text-white/45">
-                Windows 10 / 11 &middot; macOS 11+ &middot; Free to start &middot; ~100 MB
-              </p>
               <span className="rounded-full border border-cyan-400/20 bg-black/30 px-5 py-1.5 text-[10px] uppercase tracking-[0.35em] text-cyan-300/65 backdrop-blur-md">
-                v1.0.0 &middot; Early Access
+                v1.0.0-beta &middot; Windows 10 / 11 &middot; macOS 11+ &middot; Free
               </span>
             </div>
           </motion.div>
