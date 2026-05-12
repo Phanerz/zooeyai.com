@@ -82,6 +82,8 @@ export function Footer() {
                 alt="Zooey"
                 width={36}
                 height={36}
+                quality={85}
+                loading="lazy"
                 className="h-9 w-9 object-contain drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] transition-transform duration-300 group-hover:scale-110"
               />
               <div>
@@ -90,6 +92,8 @@ export function Footer() {
                   alt="Zooey"
                   width={120}
                   height={32}
+                  quality={85}
+                  loading="lazy"
                   className="h-[18px] w-auto object-contain drop-shadow-[0_0_6px_rgba(255,255,255,0.5)] transition-all duration-300 group-hover:drop-shadow-[0_0_16px_rgba(74,222,128,0.85)] group-hover:scale-[1.04] group-hover:brightness-110"
                 />
                 <p className="text-[11px] uppercase tracking-[0.28em] text-white/40">

@@ -103,6 +103,8 @@ export function Header() {
               alt="Zooey"
               width={44}
               height={44}
+              quality={85}
+              loading="lazy"
               className="h-11 w-11 object-contain drop-shadow-[0_0_10px_rgba(74,222,128,0.55)] transition-transform duration-300 group-hover:scale-110"
             />
             <div>
@@ -111,6 +113,8 @@ export function Header() {
                 alt="Zooey"
                 width={120}
                 height={32}
+                quality={85}
+                loading="lazy"
                 className="h-[22px] w-auto object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.55)] transition-all duration-300 group-hover:drop-shadow-[0_0_18px_rgba(74,222,128,0.9)] group-hover:scale-[1.04] group-hover:brightness-110"
               />
               <p className="text-xs uppercase tracking-[0.28em] text-white/45">

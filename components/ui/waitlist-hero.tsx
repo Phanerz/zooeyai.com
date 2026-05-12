@@ -285,6 +285,8 @@ function WaitlistHeroInner() {
           alt="Zooey"
           width={104}
           height={104}
+          quality={85}
+          loading="lazy"
           className="mb-1 object-contain"
           style={{ filter: "drop-shadow(0 0 22px rgba(74,222,128,0.55)) drop-shadow(0 0 6px rgba(74,222,128,0.3))" }}
         />
