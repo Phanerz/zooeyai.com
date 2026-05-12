@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useIsIOS } from '@/lib/use-is-ios';
 
 interface ScrollExpandMediaProps {
@@ -64,7 +64,6 @@ const ScrollExpandMedia = ({
   const [isMobileState, setIsMobileState] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   // ─── Low-end device state ─────────────────────────────────────────────────
   const [isLowEnd, setIsLowEnd] = useState(false);
@@ -80,9 +79,6 @@ const ScrollExpandMedia = ({
   const downloadBadgeRef   = useRef<HTMLDivElement | null>(null);
   const scrollHintRef = useRef<HTMLParagraphElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
-
-  // Tracks whether IntersectionObserver has already triggered video load
-  const videoLoadedRef = useRef(false);
 
   // Animation state kept in refs only — no React state for 60fps values
   const progressRef = useRef(0);
@@ -342,29 +338,6 @@ const ScrollExpandMedia = ({
     };
   }, []);
 
-  // ─── Desktop: IntersectionObserver for video lazy-load ───────────────────
-  useEffect(() => {
-    if (ios) return;
-    if (mediaType !== 'video') return;
-    const container = mediaContainerRef.current;
-    if (!container) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting || videoLoadedRef.current) return;
-        videoLoadedRef.current = true;
-        const vid = videoRef.current;
-        if (!vid) return;
-        vid.load();
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(container);
-    return () => observer.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mediaType]);
-
   // ─── Desktop: volume / mute sync ──────────────────────────────────────────
   useEffect(() => {
     if (ios) return;
@@ -585,10 +558,11 @@ const ScrollExpandMedia = ({
                     <video
                       ref={videoRef}
                       poster={posterSrc}
+                      autoPlay
                       muted
                       loop
                       playsInline
-                      preload="none"
+                      preload="auto"
                       className="h-full w-full rounded-md object-cover"
                       style={{ transform: 'translateZ(0)', willChange: 'transform' }}
                       controls={false}
@@ -598,28 +572,6 @@ const ScrollExpandMedia = ({
                       {webmSrc && <source src={webmSrc} type="video/webm" />}
                       <source src={mediaSrc} type="video/mp4" />
                     </video>
-                    {/* Play / pause toggle — bottom-left */}
-                    <button
-                      onClick={() => {
-                        const vid = videoRef.current;
-                        if (!vid) return;
-                        if (isPlaying) {
-                          vid.pause();
-                          setIsPlaying(false);
-                        } else {
-                          vid.play().catch(() => {});
-                          setIsPlaying(true);
-                        }
-                      }}
-                      className="absolute bottom-3 left-3 z-10 flex items-center justify-center rounded-full border border-white/15 bg-black/70 p-2 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30"
-                      aria-label={isPlaying ? 'Pause' : 'Play'}
-                    >
-                      {isPlaying ? (
-                        <Pause className="h-4 w-4 text-white/70" />
-                      ) : (
-                        <Play className="h-4 w-4 text-white/70" />
-                      )}
-                    </button>
                     {/* Volume control */}
                     <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30">
                       <button
