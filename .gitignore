@@ -44,3 +44,5 @@ dev-server.err.log
 
 # windows
 start-dev.cmd
+
+.vercel

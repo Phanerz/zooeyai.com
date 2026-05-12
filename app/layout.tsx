@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from '@vercel/analytics/react';
+import { headers } from "next/headers";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import { PlasmaWeb } from "@/components/ui/cosmic-plasma-web";
 import { Header } from "@/components/landing/header";
@@ -28,13 +30,20 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const ua = headersList.get("user-agent") ?? "";
+  // iPhone / iPod / iPad (standard UA) + iPadOS 13+ desktop mode (sends Macintosh UA with Mobile/)
+  const isIOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (/Macintosh|Mac OS X/.test(ua) && /Mobile\//.test(ua));
+
   return (
-    <html lang="en">
+    <html lang="en" className={isIOS ? "ios" : undefined}>
       <body
         className={`${manrope.variable} ${spaceGrotesk.variable} font-sans text-white antialiased`}
         style={{ background: "#050608" }}
@@ -67,6 +76,7 @@ export default function RootLayout({
 
         {/* Persistent Zooey chatbot */}
         <ZooeyChatbot />
+        <Analytics />
       </body>
     </html>
   );

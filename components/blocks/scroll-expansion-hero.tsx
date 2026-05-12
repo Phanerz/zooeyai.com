@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
+import { useIsIOS } from '@/lib/use-is-ios';
 
 interface ScrollExpandMediaProps {
   mediaType?: 'video' | 'image';
@@ -52,12 +53,23 @@ const ScrollExpandMedia = ({
   downloadBadge,
   children
 }: ScrollExpandMediaProps) => {
+  // ─── iOS detection (synchronous, correct from first render) ───────────────
+  const ios = useIsIOS();
+
+  // ─── Mount gate (prevents hydration mismatch) ─────────────────────────────
+  const [mounted, setMounted] = useState(false);
+
+  // ─── Desktop-only state ───────────────────────────────────────────────────
   const [showContent, setShowContent] = useState(false);
   const [isMobileState, setIsMobileState] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(true);
 
-  // DOM refs — all animation is applied directly to avoid React re-renders at 60fps
+  // ─── iOS video lazy-load state ────────────────────────────────────────────
+  const [shouldLoadIOSVideo, setShouldLoadIOSVideo] = useState(false);
+  const iosVideoContainerRef = useRef<HTMLDivElement>(null);
+
+  // ─── Desktop DOM refs ─────────────────────────────────────────────────────
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const mediaContainerRef = useRef<HTMLDivElement | null>(null);
   const h1Ref = useRef<HTMLHeadingElement | null>(null);
@@ -174,14 +186,45 @@ const ScrollExpandMedia = ({
     }
   };
 
+  // ─── Mount effect — always runs, used as hydration gate ──────────────────
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ─── iOS video lazy-loader via IntersectionObserver ──────────────────────
+  useEffect(() => {
+    if (!ios || !mounted || mediaType !== 'video') return;
+    const container = iosVideoContainerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoadIOSVideo(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [ios, mounted, mediaType]);
+
+  // ─── Desktop: reset progress when mediaType changes ──────────────────────
+  useEffect(() => {
+    if (ios) return;
     progressRef.current = 0;
     targetProgressRef.current = 0;
     applyProgressToDOM(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaType]);
 
+  // ─── Desktop: wheel / touch / scroll event listeners ─────────────────────
+  //
+  // WARNING: passive:false + e.preventDefault() on touch/wheel events is the
+  // primary iOS WebKit crash cause. This entire block is skipped on iOS.
   useEffect(() => {
+    if (ios) return;
+
     const contentUnlocked = () =>
       targetProgressRef.current >= contentRevealThreshold;
 
@@ -270,9 +313,12 @@ const ScrollExpandMedia = ({
       );
       window.removeEventListener('touchend', handleTouchEnd as EventListener);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ─── Desktop: mobile breakpoint detection ────────────────────────────────
   useEffect(() => {
+    if (ios) return;
     const checkIfMobile = () => {
       const mobile = window.innerWidth < 768;
       isMobileRef.current = mobile;
@@ -281,10 +327,12 @@ const ScrollExpandMedia = ({
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
     return () => window.removeEventListener('resize', checkIfMobile);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Cache header ref on mount and clean up on unmount
+  // ─── Desktop: cache header ref ────────────────────────────────────────────
   useEffect(() => {
+    if (ios) return;
     headerRef.current = document.querySelector('header');
     return () => {
       if (headerRef.current) {
@@ -293,8 +341,10 @@ const ScrollExpandMedia = ({
         headerRef.current.style.pointerEvents = '';
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ─── Desktop: RAF cleanup on unmount ─────────────────────────────────────
   useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
@@ -303,10 +353,9 @@ const ScrollExpandMedia = ({
     };
   }, []);
 
-  // IntersectionObserver — triggers video load+play only when container enters
-  // the viewport. With preload="none" the browser won't touch the video file
-  // until this fires, so it never competes with initial page rendering.
+  // ─── Desktop: IntersectionObserver for video lazy-load ───────────────────
   useEffect(() => {
+    if (ios) return;
     if (mediaType !== 'video') return;
     const container = mediaContainerRef.current;
     if (!container) return;
@@ -317,30 +366,123 @@ const ScrollExpandMedia = ({
         videoLoadedRef.current = true;
         const vid = videoRef.current;
         if (!vid) return;
-        vid.load();                      // kick off network request
-        vid.play().catch(() => {});      // autoplay (already muted, will succeed)
+        vid.load();
+        vid.play().catch(() => {});
       },
       { threshold: 0.1 }
     );
 
     observer.observe(container);
     return () => observer.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaType]);
 
+  // ─── Desktop: volume / mute sync ──────────────────────────────────────────
   useEffect(() => {
+    if (ios) return;
     const vid = videoRef.current;
     if (!vid) return;
-    // Set volume first, then muted — order matters in some browsers
     vid.volume = volume;
     vid.muted = isMuted;
-    // If unmuting, ensure it's playing
     if (!isMuted && vid.paused) vid.play().catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume, isMuted]);
 
-  // Initial container size (progress = 0)
+  // Initial container size (progress = 0) — desktop only
   const initStartWidth = isMobileState ? 210 : 360;
   const initStartHeight = initStartWidth * 1.5;
 
+  // ─── Hydration placeholder — server + first client render ─────────────────
+  if (!mounted) {
+    return <div style={{ minHeight: '100dvh', background: '#050608' }} />;
+  }
+
+  // ─── iOS: completely static path ──────────────────────────────────────────
+  //
+  // No framer-motion, no RAF, no passive:false event listeners, no willChange.
+  // Passive:false touch/wheel listeners calling e.preventDefault() are the
+  // primary cause of WebKit's kill→reload→kill crash loop on older iPhones.
+  if (ios) {
+    return (
+      <div>
+        <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden">
+          {/* Static background — plain CSS, no motion.div */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={bgImageSrc}
+              alt="Zooey background"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(74,222,128,0.18),transparent_22%),radial-gradient(circle_at_80%_20%,rgba(111,120,255,0.18),transparent_18%)]" />
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center px-5 py-24 text-center gap-6">
+            {/* Video — only loaded once the container enters the viewport */}
+            {mediaType === 'video' && (
+              <div
+                ref={iosVideoContainerRef}
+                className="overflow-hidden rounded-2xl"
+                style={{
+                  width: '210px',
+                  height: '315px',
+                  maxWidth: '88vw',
+                  border: '1px solid rgba(74,222,128,0.2)',
+                  boxShadow: '0 0 40px rgba(74,222,128,0.15)',
+                }}
+              >
+                <video
+                  poster={posterSrc}
+                  muted
+                  loop
+                  playsInline
+                  preload={shouldLoadIOSVideo ? 'metadata' : 'none'}
+                  autoPlay={shouldLoadIOSVideo}
+                  className="h-full w-full rounded-md object-cover"
+                >
+                  {webmSrc && <source src={webmSrc} type="video/webm" />}
+                  <source src={mediaSrc} type="video/mp4" />
+                </video>
+              </div>
+            )}
+
+            {titleLines?.[0] && (
+              <h1
+                className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl"
+                style={{ textShadow: '0 8px 28px rgba(2,8,12,0.95), 0 0 24px rgba(74,222,128,0.18)' }}
+              >
+                {titleLines[0]}
+              </h1>
+            )}
+            {titleLines?.[1] && (
+              <h2
+                className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl"
+                style={{ textShadow: '0 8px 28px rgba(2,8,12,0.95), 0 0 24px rgba(74,222,128,0.18)' }}
+              >
+                {titleLines[1]}
+              </h2>
+            )}
+            {description && (
+              <p className="rounded-full border border-white/10 bg-black/30 px-6 py-2.5 text-sm text-white/85 sm:text-base">
+                {description}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Children — always visible on iOS (no showContent gate) */}
+        {children && (
+          <div className="flex w-full flex-col px-5 py-14 md:px-10 lg:px-16 lg:py-20">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ─── Desktop: full scroll-expansion animated path (unchanged) ─────────────
   return (
     <div className="overflow-hidden" style={{ contain: 'paint' }}>
       <section
@@ -384,13 +526,6 @@ const ScrollExpandMedia = ({
               >
                 {mediaType === 'video' ? (
                   <div className="relative h-full w-full">
-                    {/*
-                     * preload="none"  → browser fetches zero bytes until IntersectionObserver fires.
-                     *                   Page HTML/CSS/fonts load first, video doesn't compete.
-                     * no autoPlay     → we call video.play() manually after load() in the IO callback.
-                     * no src attr     → <source> children let the browser pick WebM (smaller) over MP4.
-                     * muted           → required for programmatic play() to succeed without user gesture.
-                     */}
                     <video
                       ref={videoRef}
                       poster={posterSrc}
@@ -404,12 +539,10 @@ const ScrollExpandMedia = ({
                       disablePictureInPicture
                       disableRemotePlayback
                     >
-                      {/* WebM (VP9) — ~30-40% smaller than MP4; add this file to /public to activate */}
                       {webmSrc && <source src={webmSrc} type="video/webm" />}
-                      {/* MP4 (H.264) — universal fallback */}
                       <source src={mediaSrc} type="video/mp4" />
                     </video>
-                    {/* Volume control — muted by default to satisfy browser autoplay policy */}
+                    {/* Volume control */}
                     <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30">
                       <button
                         onClick={() => setIsMuted(!isMuted)}
