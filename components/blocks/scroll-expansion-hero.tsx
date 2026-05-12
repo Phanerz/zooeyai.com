@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
 import { useIsIOS } from '@/lib/use-is-ios';
 
 interface ScrollExpandMediaProps {
@@ -64,10 +64,10 @@ const ScrollExpandMedia = ({
   const [isMobileState, setIsMobileState] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // ─── iOS video lazy-load state ────────────────────────────────────────────
-  const [shouldLoadIOSVideo, setShouldLoadIOSVideo] = useState(false);
-  const iosVideoContainerRef = useRef<HTMLDivElement>(null);
+  // ─── Low-end device state ─────────────────────────────────────────────────
+  const [isLowEnd, setIsLowEnd] = useState(false);
 
   // ─── Desktop DOM refs ─────────────────────────────────────────────────────
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -191,23 +191,12 @@ const ScrollExpandMedia = ({
     setMounted(true);
   }, []);
 
-  // ─── iOS video lazy-loader via IntersectionObserver ──────────────────────
+  // ─── Low-end Android detection ───────────────────────────────────────────
   useEffect(() => {
-    if (!ios || !mounted || mediaType !== 'video') return;
-    const container = iosVideoContainerRef.current;
-    if (!container) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setShouldLoadIOSVideo(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [ios, mounted, mediaType]);
+    if (navigator.hardwareConcurrency < 8 && /Android/.test(navigator.userAgent)) {
+      setIsLowEnd(true);
+    }
+  }, []);
 
   // ─── Desktop: reset progress when mediaType changes ──────────────────────
   useEffect(() => {
@@ -367,7 +356,6 @@ const ScrollExpandMedia = ({
         const vid = videoRef.current;
         if (!vid) return;
         vid.load();
-        vid.play().catch(() => {});
       },
       { threshold: 0.1 }
     );
@@ -420,11 +408,10 @@ const ScrollExpandMedia = ({
           </div>
 
           <div className="relative z-10 flex flex-col items-center justify-center px-5 py-24 text-center gap-6">
-            {/* Video — only loaded once the container enters the viewport */}
-            {mediaType === 'video' && (
+            {/* Video disabled on iOS for performance — showing poster frame instead */}
+            {mediaType === 'video' && posterSrc && (
               <div
-                ref={iosVideoContainerRef}
-                className="overflow-hidden rounded-2xl"
+                className="relative overflow-hidden rounded-2xl"
                 style={{
                   width: '210px',
                   height: '315px',
@@ -433,18 +420,13 @@ const ScrollExpandMedia = ({
                   boxShadow: '0 0 40px rgba(74,222,128,0.15)',
                 }}
               >
-                <video
-                  poster={posterSrc}
-                  muted
-                  loop
-                  playsInline
-                  preload={shouldLoadIOSVideo ? 'metadata' : 'none'}
-                  autoPlay={shouldLoadIOSVideo}
-                  className="h-full w-full rounded-md object-cover"
-                >
-                  {webmSrc && <source src={webmSrc} type="video/webm" />}
-                  <source src={mediaSrc} type="video/mp4" />
-                </video>
+                <Image
+                  src={posterSrc}
+                  alt={titleLines?.join(' ') || 'Zooey'}
+                  fill
+                  className="object-cover"
+                  quality={85}
+                />
               </div>
             )}
 
@@ -473,6 +455,80 @@ const ScrollExpandMedia = ({
         </section>
 
         {/* Children — always visible on iOS (no showContent gate) */}
+        {children && (
+          <div className="flex w-full flex-col px-5 py-14 md:px-10 lg:px-16 lg:py-20">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ─── Low-end Android: static poster path ─────────────────────────────────
+  if (isLowEnd) {
+    return (
+      <div>
+        <section className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={bgImageSrc}
+              alt="Zooey background"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(74,222,128,0.18),transparent_22%),radial-gradient(circle_at_80%_20%,rgba(111,120,255,0.18),transparent_18%)]" />
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center px-5 py-24 text-center gap-6">
+            {posterSrc && (
+              <div
+                className="relative overflow-hidden rounded-2xl"
+                style={{
+                  width: '210px',
+                  height: '315px',
+                  maxWidth: '88vw',
+                  border: '1px solid rgba(74,222,128,0.2)',
+                  boxShadow: '0 0 40px rgba(74,222,128,0.15)',
+                }}
+              >
+                <Image
+                  src={posterSrc}
+                  alt={titleLines?.join(' ') || 'Zooey'}
+                  fill
+                  className="object-cover"
+                  quality={85}
+                />
+              </div>
+            )}
+            {titleLines?.[0] && (
+              <h1
+                className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl"
+                style={{ textShadow: '0 8px 28px rgba(2,8,12,0.95), 0 0 24px rgba(74,222,128,0.18)' }}
+              >
+                {titleLines[0]}
+              </h1>
+            )}
+            {titleLines?.[1] && (
+              <h2
+                className="font-display text-5xl font-semibold tracking-tight leading-[1.1] text-green-300 drop-shadow-[0_10px_34px_rgba(0,0,0,0.9)] sm:text-6xl"
+                style={{ textShadow: '0 8px 28px rgba(2,8,12,0.95), 0 0 24px rgba(74,222,128,0.18)' }}
+              >
+                {titleLines[1]}
+              </h2>
+            )}
+            {description && (
+              <p className="rounded-full border border-white/10 bg-black/30 px-6 py-2.5 text-sm text-white/85 sm:text-base">
+                {description}
+              </p>
+            )}
+            {downloadButton && downloadButton}
+            {downloadSubtext && downloadSubtext}
+            {downloadBadge && downloadBadge}
+          </div>
+        </section>
+
         {children && (
           <div className="flex w-full flex-col px-5 py-14 md:px-10 lg:px-16 lg:py-20">
             {children}
@@ -542,6 +598,28 @@ const ScrollExpandMedia = ({
                       {webmSrc && <source src={webmSrc} type="video/webm" />}
                       <source src={mediaSrc} type="video/mp4" />
                     </video>
+                    {/* Play / pause toggle — bottom-left */}
+                    <button
+                      onClick={() => {
+                        const vid = videoRef.current;
+                        if (!vid) return;
+                        if (isPlaying) {
+                          vid.pause();
+                          setIsPlaying(false);
+                        } else {
+                          vid.play().catch(() => {});
+                          setIsPlaying(true);
+                        }
+                      }}
+                      className="absolute bottom-3 left-3 z-10 flex items-center justify-center rounded-full border border-white/15 bg-black/70 p-2 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30"
+                      aria-label={isPlaying ? 'Pause' : 'Play'}
+                    >
+                      {isPlaying ? (
+                        <Pause className="h-4 w-4 text-white/70" />
+                      ) : (
+                        <Play className="h-4 w-4 text-white/70" />
+                      )}
+                    </button>
                     {/* Volume control */}
                     <div className="group absolute bottom-3 right-3 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1.5 backdrop-blur-sm transition-all duration-200 hover:border-green-400/30">
                       <button

@@ -263,16 +263,15 @@ export function PlasmaWeb({
     // Device quality tier — governs shader complexity and DPR cap.
     // hardwareConcurrency is a coarse proxy for GPU capability but far better than nothing.
     const cores = navigator.hardwareConcurrency ?? 4;
-    const isLowEnd  = cores < 4;
-    const isMidRange = cores >= 4 && cores < 8;
+    const isLowEnd = cores < 8;
 
-    // Low-end devices skip WebGL entirely — the CSS gradient fallback is already rendered.
+    // Low-end devices (< 8 cores) skip WebGL entirely — the CSS gradient fallback is already rendered.
     if (isLowEnd) return;
 
-    const qualityDPR     = isMidRange ? 1.0 : 1.5;
-    const qualityDensity = isMidRange ? density * 0.65  : density;
-    const qualityEnergy  = isMidRange ? energyFlow * 0.7 : energyFlow;
-    const qualityPulse   = isMidRange ? pulseIntensity * 0.5 : pulseIntensity;
+    const qualityDPR     = 1.5;
+    const qualityDensity = density;
+    const qualityEnergy  = energyFlow;
+    const qualityPulse   = pulseIntensity;
 
     // Guard against browsers where WebGL is unavailable
     let renderer: InstanceType<typeof Renderer>;
@@ -363,9 +362,7 @@ export function PlasmaWeb({
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Mid-range devices run at 30 fps instead of 60 — halves fragment shader work
-    // without freezing or pausing the animation. High-end stays at 60 fps.
-    const frameInterval = isMidRange ? 1000 / 30 : 1000 / 60;
+    const frameInterval = 1000 / 60;
     let lastFrameTime = 0;
 
     function update(t: number) {
@@ -397,36 +394,9 @@ export function PlasmaWeb({
     gl.canvas.style.width = '100%';
     gl.canvas.style.height = '100%';
 
-    // Listen on window so pointer-events-none wrapper doesn't block events.
-    // Throttle to ~30 fps to avoid flooding JS with mousemove events.
-    let lastMouseTime = 0;
-    function handleMouseMove(e: MouseEvent) {
-      const now = performance.now();
-      if (now - lastMouseTime < 32) return;
-      lastMouseTime = now;
-      targetMousePos.current = {
-        x: e.clientX / window.innerWidth,
-        y: 1.0 - e.clientY / window.innerHeight,
-      };
-      targetMouseActive.current = 1.0;
-    }
-
-    function handleMouseLeave() {
-      targetMouseActive.current = 0.0;
-    }
-
-    if (mouseInteraction) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseleave', handleMouseLeave);
-    }
-
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
-      if (mouseInteraction) {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseleave', handleMouseLeave);
-      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       gl.canvas.removeEventListener('webglcontextlost', handleContextLost);
       if (ctn.contains(gl.canvas)) ctn.removeChild(gl.canvas);

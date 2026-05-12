@@ -59,9 +59,9 @@ export default async function RootLayout({
             energyFlow={1.2}
             pulseIntensity={0.3}
             attractionStrength={2.0}
-            mouseAttraction={true}
+            mouseAttraction={false}
             transparent={false}
-            mouseInteraction={true}
+            mouseInteraction={false}
           />
         </div>
 
